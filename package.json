@@ -14,5 +14,8 @@
     "ethjs-abi": "^0.2.1",
     "openzeppelin-solidity": "2.5.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477"
+  },
+  "devDependencies": {
+    "chai-bn": "^0.2.1"
   }
 }
