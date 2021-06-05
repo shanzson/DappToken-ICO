@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
-import 'openzeppelin/contracts/Crowdsale/Crowdsale.sol';
-import 'openzeppelin/contracts/token/ERC20/IERC20.sol';
-import 'openzeppelin/contracts/Crowdsale/distribution/PostDeliveryCrowdsale.sol';
-
-
+//***********************EattheBlocks**********************
+// import 'openzeppelin/contracts/Crowdsale/Crowdsale.sol';
+// import 'openzeppelin/contracts/token/ERC20/IERC20.sol';
+// import 'openzeppelin/contracts/Crowdsale/distribution/PostDeliveryCrowdsale.sol';
 
 // contract ICO is Crowdsale, PostDeliveryCrowdsale{
 //   constructor(
@@ -15,21 +14,21 @@ import 'openzeppelin/contracts/Crowdsale/distribution/PostDeliveryCrowdsale.sol'
 //   ) Crowdsale (rate, wallet, token) 
 //   public{}
 // }
+//************************EattheBlocks**********************
 
+contract Migrations {
+  address public owner = msg.sender;
+  uint public last_completed_migration;
 
-// contract Migrations {
-//   address public owner = msg.sender;
-//   uint public last_completed_migration;
+  modifier restricted() {
+    require(
+      msg.sender == owner,
+      "This function is restricted to the contract's owner"
+    );
+    _;
+  }
 
-//   modifier restricted() {
-//     require(
-//       msg.sender == owner,
-//       "This function is restricted to the contract's owner"
-//     );
-//     _;
-//   }
-
-//   function setCompleted(uint completed) public restricted {
-//     last_completed_migration = completed;
-//   }
-// }
+  function setCompleted(uint completed) public restricted {
+    last_completed_migration = completed;
+  }
+}
