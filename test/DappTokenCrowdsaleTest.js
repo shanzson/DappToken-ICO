@@ -23,6 +23,9 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 		this.wallet = wallet;	
 	
 		this.crowdsale = await DappTokenCrowdsale.new(this.rate, this.wallet, this.token.address);
+
+		//Transfer token ownership to crowdsale
+		await this.token.addMinter(this.crowdsale.address);
 	});
 
 	describe('Crowdsale', () =>{
@@ -43,7 +46,9 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 	describe('Accepting payments', () =>{
 		it('Should Accept payments', async () => {
 			const value = toWei(1);
-			await this.crowdsale.sendTransaction({value: value, from: investor1  });
+			await this.crowdsale.sendTransaction({value: value, from: investor1 });
+			//Previously got VM Exception here as crowdsale was not the minter, _ was.
+			//So added crowdsale contract address using MinterRole.sol from _ in BeforeEach.
 		});
 	});
 });
