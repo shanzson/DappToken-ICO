@@ -1,5 +1,4 @@
 const toWei = require('./helpers/toWei');
-const EVMRevert = require('./helpers/EVMRevert');
 const chai = require('chai');
 const BN = require('bn.js');
 
@@ -94,9 +93,46 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 				const value = toWei(0.0019); 	//amount less than MinCap
 				await this.crowdsale.buyTokens(investor2, { value: value, from: investor2}).should.be.rejectedWith('revert'); 
 			});
+
+			it('When the investor has already met the mincap', async () => {
+				//First contribution is valid
+				const value = toWei(1); 	//amount greater than MinCap
+				await this.crowdsale.buyTokens(investor2, { value: value, from: investor2}).should.be.fulfilled; 
+				//Second transaction is less than investor cap
+				const value2 = '1'; 	//wei
+				await this.crowdsale.buyTokens(investor2, { value: value2, from: investor2}).should.be.fulfilled; 
+			});
 		});
+
+		describe('When the contribution is more than Hard cap', () =>{
+			it('Rejects the transaction', async () => {
+				//First contribution is valid
+				const value = toWei(2);     // 2 ether 	
+				await this.crowdsale.buyTokens(investor2, { value: value, from: investor2}).should.be.fulfilled;
+				const value2 = toWei(49);     // total is 2+49 = 51 ether from same investor  	
+				await this.crowdsale.buyTokens(investor2, { value: value2, from: investor2}).should.be.rejectedWith('revert'); 
+			});
+
+			it('When the investor has already met the mincap', async () => {
+				//First contribution is valid
+				const value = toWei(1); 	//amount greater than MinCap
+				await this.crowdsale.buyTokens(investor2, { value: value, from: investor2}).should.be.fulfilled; 
+				//Second transaction is less than investor cap
+				const value2 = '1'; 	    //wei
+				await this.crowdsale.buyTokens(investor2, { value: value2, from: investor2}).should.be.fulfilled; 
+			});
+		});
+
+		describe('When the contribution is within valid range', () =>{
+			it('Succeeds and updates the contribution amount', async () => {
+				const value = toWei(2);     // 2 ether 	
+				await this.crowdsale.buyTokens(investor2, { value: value, from: investor2}).should.be.fulfilled;
+				const contribution = await this.crowdsale.getUserContribution(investor2);
+      			contribution.should.be.bignumber.equal(value);
+			});
+		});
+
+
 	});
-
-
 
 });

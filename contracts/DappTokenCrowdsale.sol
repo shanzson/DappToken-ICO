@@ -24,6 +24,11 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale{
 
 	}
 
+	function getUserContribution(address _beneficiary)
+    	public view returns (uint256){
+    		return contributions[_beneficiary];
+  		}
+
 	function _preValidatePurchase(
 		address beneficiary,
 		uint256 weiAmount
