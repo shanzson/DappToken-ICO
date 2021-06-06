@@ -1,7 +1,14 @@
 {
   "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-stage-2": "^6.18.0",
+    "babel-preset-stage-3": "^6.17.0",
+    "babel-register": "^6.26.0",
     "chai": "^4.2.0",
+    "chai-as-promised": "^7.0.0",
     "chai-bignumber": "^2.0.2",
+    "chai-bn": "^0.2.1",
     "coveralls": "^3.0.1",
     "dotenv": "^4.0.0",
     "eslint": "^6.5.1",
@@ -13,9 +20,7 @@
     "ethereumjs-util": "^6.2.0",
     "ethjs-abi": "^0.2.1",
     "openzeppelin-solidity": "2.5.0",
-    "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477"
-  },
-  "devDependencies": {
-    "chai-bn": "^0.2.1"
+    "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
+    "web3-utils": "^1.3.6"
   }
 }
