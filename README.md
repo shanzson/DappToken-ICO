@@ -13,7 +13,7 @@ truffle test ./test/DappTokenTest.js
 ```
 truffle test ./test/DappTokenCrowdsaleTest.js
 ```
-- Alternatively, you can use `truffle test` command to run all the tests__
+- Alternatively, you can use `truffle test` command to run all the tests
 
 ![](/images/Tests.JPG)
 
