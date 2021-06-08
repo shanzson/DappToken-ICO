@@ -9,6 +9,7 @@ web3.eth.getBlockNumber()
 
 const BigNumber = web3.BigNumber;
 
+//Helps to increase current time to test Timed ICO
 function increaseTime (duration) {
   const id = Date.now();
 
@@ -63,16 +64,6 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 
 	beforeEach(async () => {
 		this.token = await DappToken.new('Dapp Token', 'DTC', 18);
-	
-		//duration
-		// let duration = {
-		//   seconds: function (val) { return val; },
-		//   minutes: function (val) { return val * this.seconds(60); },
-		//   hours: function (val) { return val * this.minutes(60); },
-		//   days: function (val) { return val * this.hours(24); },
-		//   weeks: function (val) { return val * this.days(7); },
-		//   years: function (val) { return val * this.days(365); },
-		// };
 
 		function weeks (val) { return val * 7 * 24 * 60 * 60; }
 
@@ -81,18 +72,9 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 		this.wallet = wallet;  // Address where funds are collected
 		this.cap = toWei(100); //Total amount to be raised (100 Ether);
 
-		// console.log('Weeks(1): ', weeks(1), typeof(weeks(1)));
-		var w = weeks(1);
-		// console.log('w ', w);
-		var latest_time = await latestTime('latest');
-		// console.log('latest_time ', latest_time);
-		const n = 1623175390 + 604800;
-		// console.log('n ', n);
-		var oT = w + latest_time;
-
-		// console.log('oT: ',oT);
-		const cT = oT + weeks(1);
-		// console.log('cT: ',cT);
+		const latest_time = await latestTime('latest');
+		this.openingTime = weeks(1) + latest_time;
+		this.closingTime = this.openingTime + weeks(1);
 
 		this.investorMinCap = toWei(0.002);
 		this.investorHardCap = toWei(50);
@@ -102,16 +84,15 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 			this.wallet, 
 			this.token.address,
 			this.cap,
-			oT,
-			cT			
+			this.openingTime,
+			this.closingTime 			
 		);
 
 		//Transfer token ownership to crowdsale
 		await this.token.addMinter(this.crowdsale.address);
 		
 		//Advance time to crowdsale start
-		const increasedTime = await increaseTimeTo(oT + 1);
-		// console.log('Increased time to: ', increasedTime);
+		const increasedTime = await increaseTimeTo(this.openingTime + 1);
 	});
 
 	describe('Crowdsale', () =>{
