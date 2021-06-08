@@ -33,7 +33,7 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
     		return contributions[_beneficiary];
   	}
 
-	function _preValidatePurchase(
+	function _updatePurchasingState(
 		address beneficiary,
 		uint256 weiAmount
 	)

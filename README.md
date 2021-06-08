@@ -1,12 +1,25 @@
-#Tests
+# How to Run?
+- Run `npm install` or `yarn` to install the dependencies
+- Run `truffle compile`
+- Run `truffle migrate --reset`
+
+# Tests
+- Make sure that you have ganache-cli running in the terminal. Use the command `ganache-cli` 
+- In another terminal, run this command for testing the first test file 
+```
+truffle test ./test/DappTokenTest.js
+
+```
+- Now, run this command for testing the second test file 
+```
+truffle test ./test/DappTokenCrowdsaleTest.js
+
+```
+- Alternatively, you can use `truffle test` command to run all the tests
 ![](/images/Tests.JPG)
 
-# NPM Packages
-- https://www.npmjs.com/package/openzeppelin-solidity/v/2.5.0
-- https://www.chaijs.com/plugins/chai-bn/
 
-
-# Notes
+# Notes and References
 - ERC20Standard from Openzeppelin is ERC20 in Openzeppelin Version 2.5
 - Made _preValidatePurchase internal from internal view in openzeppelin-contracts/validation/CappedCrowdsale.sol, openzeppelin-contracts/contracts/Crowdsale.sol and openzeppelin-contracts/validation/TimedCrowdsale.sol
 - [Using Openzeppelin Version 2.5](https://github.com/OpenZeppelin/openzeppelin-contracts/tree/release-v2.5.0/contracts/token/ERC20 )
