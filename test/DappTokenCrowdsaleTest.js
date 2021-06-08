@@ -2,13 +2,10 @@ const toWei = require('./helpers/toWei');
 const chai = require('chai');
 const BN = require('bn.js');
 
-// const { increaseTime, increaseTimeTo, duration } = require('./helpers/increaseTime');
-// const latestTime = require('./helpers/latestTime');
-
 Web3 = require('web3');
 let web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
 web3.eth.getBlockNumber()
-	.then((block) => console.log('Done!', block));
+	.then((block) => console.log('Block: ', block));
 
 const BigNumber = web3.BigNumber;
 
@@ -16,7 +13,7 @@ function increaseTime (duration) {
   const id = Date.now();
 
   return new Promise((resolve, reject) => {
-    web3.currentProvider.sendAsync({
+    web3.currentProvider.send({
       jsonrpc: '2.0',
       method: 'evm_increaseTime',
       params: [duration],
@@ -24,7 +21,7 @@ function increaseTime (duration) {
     }, err1 => {
       if (err1) return reject(err1);
 
-      web3.currentProvider.sendAsync({
+      web3.currentProvider.send({
         jsonrpc: '2.0',
         method: 'evm_mine',
         id: id + 1,
@@ -35,10 +32,11 @@ function increaseTime (duration) {
   });
 }
 
-function increaseTimeTo (target) {
-  let now = latestTime();
+async function increaseTimeTo (target) {
+  let now = await latestTime('latest'); //always use await when calling latestTime()
   if (target < now) throw Error(`Cannot increase current time(${now}) to a moment in the past(${target})`);
   let diff = target - now;
+  // console.log('diff: ', diff);
   return increaseTime(diff);
 }
 
@@ -46,7 +44,7 @@ async function latestTime (a) {
 	// var blockNumber = web3.eth.getBlockNumber();
     const t = await web3.eth.getBlock(a).then((block) => {
     	const timestamp = block.timestamp;
-    	console.log(timestamp, ' with type', typeof(timestamp));
+    	// console.log(timestamp, ' with type', typeof(timestamp));
     	return timestamp;
     });
     return t;
@@ -83,19 +81,18 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 		this.wallet = wallet;  // Address where funds are collected
 		this.cap = toWei(100); //Total amount to be raised (100 Ether);
 
-		console.log('Weeks(1): ', weeks(1), typeof(weeks(1)));
+		// console.log('Weeks(1): ', weeks(1), typeof(weeks(1)));
 		var w = weeks(1);
-		console.log('w ', w);
+		// console.log('w ', w);
 		var latest_time = await latestTime('latest');
-		console.log('latest_time ', latest_time);
+		// console.log('latest_time ', latest_time);
 		const n = 1623175390 + 604800;
-		console.log('n ', n);
+		// console.log('n ', n);
 		var oT = w + latest_time;
 
-		console.log('oT: ',oT);
+		// console.log('oT: ',oT);
 		const cT = oT + weeks(1);
-		// console.log('Opening Time ',(this.openingTime).toString());
-		// console.log('Closing Time ',(this.closingTime).toString());
+		// console.log('cT: ',cT);
 
 		this.investorMinCap = toWei(0.002);
 		this.investorHardCap = toWei(50);
@@ -113,8 +110,8 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 		await this.token.addMinter(this.crowdsale.address);
 		
 		//Advance time to crowdsale start
-		await increaseTimeTo(this.openingTime + 1);
-
+		const increasedTime = await increaseTimeTo(oT + 1);
+		// console.log('Increased time to: ', increasedTime);
 	});
 
 	describe('Crowdsale', () =>{
