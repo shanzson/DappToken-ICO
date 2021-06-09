@@ -37,15 +37,12 @@ async function increaseTimeTo (target) {
   let now = await latestTime('latest'); //always use await when calling latestTime()
   if (target < now) throw Error(`Cannot increase current time(${now}) to a moment in the past(${target})`);
   let diff = target - now;
-  // console.log('diff: ', diff);
   return increaseTime(diff);
 }
 
 async function latestTime (a) {
-	// var blockNumber = web3.eth.getBlockNumber();
     const t = await web3.eth.getBlock(a).then((block) => {
     	const timestamp = block.timestamp;
-    	// console.log(timestamp, ' with type', typeof(timestamp));
     	return timestamp;
     });
     return t;
@@ -90,6 +87,12 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 
 		//Transfer token ownership to crowdsale
 		await this.token.addMinter(this.crowdsale.address);
+
+		// Add investors to whitelist
+    await this.crowdsale.addWhitelisted(investor1);
+    
+    await this.crowdsale.addWhitelisted(investor2);
+
 		
 		//Advance time to crowdsale start
 		const increasedTime = await increaseTimeTo(this.openingTime + 1);
@@ -117,12 +120,19 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 		});
 	});
 
-	// describe('timed crowdsale', () => {
- //    	it('is open', async () => {
- //      		const isClosed = await this.crowdsale.hasClosed();
- //      	isClosed.should.be.false;
- //    	});
- //  	});
+	describe('Timed crowdsale', () => {
+    it('is open', async () => {
+   		const isClosed = await this.crowdsale.hasClosed();
+    	isClosed.should.be.false;
+    });
+  });
+
+	 describe('whitelisted crowdsale', function() {
+    it('rejects contributions from non-whitelisted investors', async function() {
+      const notWhitelisted = _;
+      await this.crowdsale.buyTokens(notWhitelisted, { value: ether(1), from: notWhitelisted }).should.be.rejectedWith(EVMRevert);
+    });
+  });
 
 
 	describe('Minted Crowdsale', () =>{
