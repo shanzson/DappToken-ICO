@@ -55,6 +55,7 @@ require('chai')
 
 const DappToken = artifacts.require("DappToken");
 const DappTokenCrowdsale = artifacts.require("DappTokenCrowdsale.sol");
+// const RefundVault = artifacts.require('./RefundVault');
 
 
 contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
@@ -68,6 +69,7 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 		this.rate = 500;       //rate is the conversion between wei and the smallest and indivisible token unit
 		this.wallet = wallet;  // Address where funds are collected
 		this.cap = toWei(100); //Total amount to be raised (100 Ether);
+		this.goal = toWei(50); //Goal below which Refunding to investors happens
 
 		const latest_time = await latestTime('latest');
 		this.openingTime = weeks(1) + latest_time;
@@ -82,7 +84,8 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 			this.token.address,
 			this.cap,
 			this.openingTime,
-			this.closingTime 			
+			this.closingTime,		
+			this.goal
 		);
 
 		//Transfer token ownership to crowdsale
@@ -90,8 +93,11 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 
 		// Add investors to whitelist
     await this.crowdsale.addWhitelisted(investor1);
-    
     await this.crowdsale.addWhitelisted(investor2);
+
+    // Track refund vault
+    // this.vaultAddress = await this.crowdsale.vault();
+    // this.vault = RefundVault.at(this.vaultAddress);
 
 		
 		//Advance time to crowdsale start
@@ -127,15 +133,26 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
     });
   });
 
-	 describe('whitelisted crowdsale', function() {
-    it('rejects contributions from non-whitelisted investors', async function() {
-      const notWhitelisted = _;
-      await this.crowdsale.buyTokens(notWhitelisted, { value: ether(1), from: notWhitelisted }).should.be.rejectedWith(EVMRevert);
-    });
+	describe('whitelisted crowdsale', () => {
+   it('rejects contributions from non-whitelisted investors', async () => {
+     const notWhitelisted = _;
+     await this.crowdsale.buyTokens(notWhitelisted,{ value: toWei(1), from: notWhitelisted}).should.be.rejectedWith('revert');
+   });
   });
 
+  // describe('refundable crowdsale', function() {
+  //   beforeEach(async function() {
+  //     await this.crowdsale.buyToken(investor1, { value: ether(1), from: investor1 });
+  //   });
 
-	describe('Minted Crowdsale', () =>{
+  //   describe('during crowdsale', function() {
+  //     it('prevents the investor from claiming refund', async function() {
+  //     // await this.vault.refund(investor1, { from: investor1 }).should.be.rejectedWith(EVMRevert);
+  //   });
+  //  });
+  // })
+
+	describe('Minted Crowdsale', () => {
 		it('Mints tokens after purchase', async () => {
 			const originalTotalSupply = await this.token.totalSupply();
 				await this.crowdsale.sendTransaction({ 	 
@@ -148,7 +165,7 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 	});
 
 
-	describe('Accepting payments', () =>{
+	describe('Accepting payments', () => {
 		it('Should Accept payments', async () => {
 			const value = toWei(1);
 			const purchaser = investor2;
@@ -208,8 +225,6 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
       			contribution.should.be.bignumber.equal(value);
 			});
 		});
-
-
 	});
 
 });
