@@ -55,7 +55,6 @@ require('chai')
 
 const DappToken = artifacts.require("DappToken");
 const DappTokenCrowdsale = artifacts.require("DappTokenCrowdsale.sol");
-// const RefundVault = artifacts.require('./RefundVault');
 
 
 contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
@@ -78,6 +77,10 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 		this.investorMinCap = toWei(0.002);
 		this.investorHardCap = toWei(50);
 
+		//ICO Stages
+		this.preIcoStage = '0';
+		this.icoStage = '1';
+
 		this.crowdsale = await DappTokenCrowdsale.new(
 			this.rate, 
 			this.wallet, 
@@ -88,6 +91,9 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 			this.goal
 		);
 
+		//Pause the token
+		await this.token.pause;
+
 		//Transfer token ownership to crowdsale
 		await this.token.addMinter(this.crowdsale.address);
 
@@ -95,11 +101,6 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
     await this.crowdsale.addWhitelisted(investor1);
     await this.crowdsale.addWhitelisted(investor2);
 
-    // Track refund vault
-    // this.vaultAddress = await this.crowdsale.vault();
-    // this.vault = RefundVault.at(this.vaultAddress);
-
-		
 		//Advance time to crowdsale start
 		const increasedTime = await increaseTimeTo(this.openingTime + 1);
 	});
@@ -164,6 +165,23 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 		});
 	});
 
+	// describe('Crowdsale stages', () => {
+ //  	it('It starts in PreICO', async () => {
+ //  		const stage = await this.crowdsale.stage();
+ //  		stage.should.be.bignumber.equal(this.preIcoStage);
+ //   	});
+
+ //   	it('Allows Admin to update ICO stage', async () => {
+ //   		await this.crowdsale.setCrowdsaleStage(this.icoStage, {from: _});
+ //  		const stage = await this.crowdsale.stage();
+ //  		stage.should.be.bignumber.equal(this.icoStage);
+ //   	});
+
+ //   	it('Does not allow non-admin to update ICO stage', async () => {
+ //   		await this.crowdsale.setCrowdsaleStage(this.icoStage, {from: investor1}).should.be.rejectedWith('revert');
+ //   	});
+ //  });
+
 
 	describe('Accepting payments', () => {
 		it('Should Accept payments', async () => {
@@ -225,6 +243,53 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
       			contribution.should.be.bignumber.equal(value);
 			});
 		});
-	});
+
+		describe('token transfers', () => {
+	    it('does not allow investors to transfer tokens during crowdsale', async () => {
+	      // Buy some tokens first
+	      await this.crowdsale.buyTokens(investor1, { value: toWei(1), from: investor1 });
+	      // Attempt to transfer tokens during crowdsale
+	      await this.token.transfer(investor2, 1, { from: investor1 }).should.be.rejectedWith('revert');
+	    });
+  	});			
+
+	  // describe('finalizing the crowdsale', () => {
+   //  	describe('when the goal is not reached', () => {
+	  //     beforeEach(async () => {
+	  //       // Do not meet the goal
+	  //       await this.crowdsale.buyTokens(investor2, { value: toWei(1), from: investor2 });
+	  //       // Fastforward past end time
+	  //       await increaseTimeTo(this.closingTime + 1);
+	  //       // Finalize the crowdsale
+	  //       await this.crowdsale.finalize({ from: _ });
+	  //     });
+
+   //    	it('allows the investor to claim refund', async () => {
+   //      	await this.crowdsale.claimRefund(investor2, { from: investor2 }).should.be.fulfilled;
+   //    	});	
+   //    });
+
+   //    describe('when the goal is reached', () => {
+	  //     beforeEach(async () => {
+	  //       // Do not meet the goal
+	  //       await this.crowdsale.buyTokens(investor1, { value: toWei(26), from: investor1 });
+	  //       await this.crowdsale.buyTokens(investor2, { value: toWei(26), from: investor2 });
+
+	  //       // Fastforward past end time
+	  //       await increaseTimeTo(this.closingTime + 1);
+	  //       // Finalize the crowdsale
+	  //       await this.crowdsale.finalize({ from: _ });
+	  //     });
+   //    	it('handles the goal reached', async () => {
+   //    		const goalReached = await this.crowdsale.goalReached();
+   //    		goalReached.should.be.true;
+   //    	});
+   //    	it('does not allow the investor to claim refund', async () => {
+   //      	await this.crowdsale.claimRefund(investor2, { from: investor2 }).should.be.rejectedWith('revert');
+   //    	});	
+   //    });
+	  // });
+
+  });
 
 });
