@@ -19,21 +19,27 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
 	mapping(address => uint256) public contributions;
 
 	//Crowdsale stages
-	enum CrowdsaleStage{ PreICO, ICO }
+	// enum CrowdsaleStage{ PreICO, ICO }
 
 	//Default to presale stage
-	CrowdsaleStage public stage = CrowdsaleStage.PreICO;
+	// CrowdsaleStage public stage = CrowdsaleStage.PreICO;
+
+	// Token Distribution
+	  uint256 public tokenSalePercentage   = 70;
+	  uint256 public foundersPercentage    = 10;
+	  uint256 public foundationPercentage  = 10;
+	  uint256 public partnersPercentage    = 10;
 
 	constructor(
 		uint256 rate, 
 		address payable wallet, 
-		IERC20 token, 
+		ERC20 _token, 
 		uint256 cap,
 		uint256 openingTime,
 		uint256 closingTime,
 		uint256 goal
 		) 
-	Crowdsale(rate, wallet, token)
+	Crowdsale(rate, wallet, _token)
 	CappedCrowdsale(cap)
 	TimedCrowdsale(openingTime, closingTime)
 	RefundableCrowdsale(goal)
@@ -71,10 +77,11 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
 
 	function _finalization() internal {
 		if(goalReached()) {
-      		// ERC20Mintable _mintableToken = ERC20Mintable(token);
 			// Finish minting the tokens
 
 			// Unpause the token
+			// ERC20Pausable e = ERC20Pausable(token);
+			// pausableToken.transferOwnership(wallet);
 		}
 
 		super._finalization();
