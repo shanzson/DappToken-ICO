@@ -253,42 +253,46 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 	    });
   	});			
 
-	  // describe('finalizing the crowdsale', () => {
-   //  	describe('when the goal is not reached', () => {
-	  //     beforeEach(async () => {
-	  //       // Do not meet the goal
-	  //       await this.crowdsale.buyTokens(investor2, { value: toWei(1), from: investor2 });
-	  //       // Fastforward past end time
-	  //       await increaseTimeTo(this.closingTime + 1);
-	  //       // Finalize the crowdsale
-	  //       await this.crowdsale.finalize({ from: _ });
-	  //     });
+	  describe('finalizing the crowdsale', () => {
+    	describe('when the goal is not reached', () => {
+	      beforeEach(async () => {
+	        // Do not meet the goal
+	        await this.crowdsale.buyTokens(investor2, { value: toWei(1), from: investor2 });
+	        // Fastforward past end time
+	        await increaseTimeTo(this.closingTime + 1);
+	        // Finalize the crowdsale
+	        await this.crowdsale.finalize({ from: _ });
+	      });
 
-   //    	it('allows the investor to claim refund', async () => {
-   //      	await this.crowdsale.claimRefund(investor2, { from: investor2 }).should.be.fulfilled;
-   //    	});	
-   //    });
+      	it('allows the investor to claim refund', async () => {
+        	await this.crowdsale.claimRefund(investor2, { from: investor2 }).should.be.fulfilled;
+      	});	
+      });
 
-   //    describe('when the goal is reached', () => {
-	  //     beforeEach(async () => {
-	  //       // Do not meet the goal
-	  //       await this.crowdsale.buyTokens(investor1, { value: toWei(26), from: investor1 });
-	  //       await this.crowdsale.buyTokens(investor2, { value: toWei(26), from: investor2 });
+      describe('when the goal is reached', () => {
+	      beforeEach(async () => {
+	        // Meets the goal
+	        await this.crowdsale.buyTokens(investor1, { value: toWei(26), from: investor1 });
+	        await this.crowdsale.buyTokens(investor2, { value: toWei(26), from: investor2 });
 
-	  //       // Fastforward past end time
-	  //       await increaseTimeTo(this.closingTime + 1);
-	  //       // Finalize the crowdsale
-	  //       await this.crowdsale.finalize({ from: _ });
-	  //     });
-   //    	it('handles the goal reached', async () => {
-   //    		const goalReached = await this.crowdsale.goalReached();
-   //    		goalReached.should.be.true;
-   //    	});
-   //    	it('does not allow the investor to claim refund', async () => {
-   //      	await this.crowdsale.claimRefund(investor2, { from: investor2 }).should.be.rejectedWith('revert');
-   //    	});	
-   //    });
-	  // });
+	        // Fastforward past end time
+	        await increaseTimeTo(this.closingTime + 1);
+	        // Finalize the crowdsale
+	        await this.crowdsale.finalize({ from: _ });
+	      });
+      	it('handles the goal reached', async () => {
+      		const goalReached = await this.crowdsale.goalReached();
+      		goalReached.should.be.true;
+
+   					//Unpauses the token 
+   					const paused = await this.token.paused();
+   					paused.should.be.false;
+      	});
+      	it('does not allow the investor to claim refund', async () => {
+        	await this.crowdsale.claimRefund(investor2, { from: investor2 }).should.be.rejectedWith('revert');
+      	});	
+      });
+	  });
 
   });
 
