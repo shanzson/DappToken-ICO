@@ -17,7 +17,7 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
 	uint256 public investorMincap = 2000000000000000; //0.002 ether, here 2*10^15 wei
 	uint256 public investorHardcap = 50000000000000000000; //50 ether, here 50*10^18
 	mapping(address => uint256) public contributions;
-
+	address token_address;
 	//Crowdsale stages
 	// enum CrowdsaleStage{ PreICO, ICO }
 
@@ -45,6 +45,7 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
 	RefundableCrowdsale(goal)
 	public {
 		require(goal <= cap);
+		token_address = address(_token);
 	}
 
 	function getUserContribution(address _beneficiary) 
@@ -78,7 +79,7 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
 	function _finalization() internal {
 		if(goalReached()) {
 			// Finish minting the tokens
-
+			ERC20Mintable _minteableToken = ERC20Mintable(token_address); 
 			// Unpause the token
 			// ERC20Pausable e = ERC20Pausable(token);
 			// pausableToken.transferOwnership(wallet);
