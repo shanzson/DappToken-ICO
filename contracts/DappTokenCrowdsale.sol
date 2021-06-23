@@ -47,7 +47,7 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
 	constructor(
 		uint256 rate, 
 		address payable wallet, 
-		ERC20 _token, 
+		IERC20 _token, 
 		uint256 cap,
 		uint256 openingTime,
 		uint256 closingTime,
@@ -56,7 +56,7 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
 	    address _foundationFund,
 	    address _partnersFund,
 	    uint256 _releaseTime
-		) 
+	) 
 	Crowdsale(rate, wallet, _token)
 	CappedCrowdsale(cap)
 	TimedCrowdsale(openingTime, closingTime)
@@ -65,6 +65,11 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
 		require(goal <= cap);
 		token_address = address(_token);
 		token_reference = _token;
+		
+		foundersFund   = _foundersFund;
+    	foundationFund = _foundationFund;
+    	partnersFund   = _partnersFund;
+    	releaseTime    = _releaseTime;
 	}
 
 	function getUserContribution(address _beneficiary) 
