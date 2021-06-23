@@ -10,6 +10,8 @@ import "openzeppelin-solidity/contracts/crowdsale/validation/TimedCrowdsale.sol"
 import "openzeppelin-solidity/contracts/crowdsale/validation/WhitelistCrowdsale.sol";
 import "openzeppelin-solidity/contracts/crowdsale/distribution/RefundablePostDeliveryCrowdsale.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/TokenTimelock.sol";
+
 
 contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowdsale, WhitelistCrowdsale, RefundablePostDeliveryCrowdsale, Ownable{
 	// Minimum investor contribution - 0.002 Ether
@@ -18,6 +20,7 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
 	uint256 public investorHardcap = 50000000000000000000; //50 ether, here 50*10^18
 	mapping(address => uint256) public contributions;
 	address token_address;
+	IERC20 private token_reference;
 	//Crowdsale stages
 	// enum CrowdsaleStage{ PreICO, ICO }
 
@@ -30,6 +33,17 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
 	  uint256 public foundationPercentage  = 10;
 	  uint256 public partnersPercentage    = 10;
 
+	// Token reserve funds
+	  address public foundersFund;
+	  address public foundationFund;
+	  address public partnersFund;
+
+	// Token time lock
+	  uint256 public releaseTime;
+	  address public foundersTimelock;
+	  address public foundationTimelock;
+	  address public partnersTimelock;
+
 	constructor(
 		uint256 rate, 
 		address payable wallet, 
@@ -37,7 +51,11 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
 		uint256 cap,
 		uint256 openingTime,
 		uint256 closingTime,
-		uint256 goal
+		uint256 goal,
+		address _foundersFund,
+	    address _foundationFund,
+	    address _partnersFund,
+	    uint256 _releaseTime
 		) 
 	Crowdsale(rate, wallet, _token)
 	CappedCrowdsale(cap)
@@ -46,6 +64,7 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
 	public {
 		require(goal <= cap);
 		token_address = address(_token);
+		token_reference = _token;
 	}
 
 	function getUserContribution(address _beneficiary) 
@@ -79,10 +98,24 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
 	function _finalization() internal {
 		if(goalReached()) {
 			// Finish minting the tokens
-			ERC20Mintable _minteableToken = ERC20Mintable(token_address); 
-			// Unpause the token
-			// ERC20Pausable e = ERC20Pausable(token);
-			// pausableToken.transferOwnership(wallet);
+			ERC20Mintable _mintableToken = ERC20Mintable(token_address); 
+			uint256 _alreadyMinted = _mintableToken.totalSupply(); //_alreadyMinted is the tokens minted as a part of tokenSalePercentage
+
+			uint256 _finalTotalSupply = _alreadyMinted.mul(tokenSalePercentage).div(100);
+
+		    foundersTimelock   = address(new TokenTimelock(token_reference, foundersFund, releaseTime));
+		    foundationTimelock = address(new TokenTimelock(token_reference, foundationFund, releaseTime));
+		    partnersTimelock   = address(new TokenTimelock(token_reference, partnersFund, releaseTime));
+
+		    _mintableToken.mint(address(foundersTimelock),   _finalTotalSupply.mul(foundersPercentage).div(100));
+		    _mintableToken.mint(address(foundationTimelock), _finalTotalSupply.mul(foundationPercentage).div(100));
+		    _mintableToken.mint(address(partnersTimelock),   _finalTotalSupply.mul(partnersPercentage).div(100));
+
+
+		    // Unpause the token
+		    // ERC20Pausable _pausableToken = ERC20Pausable(token_address);
+		    // _pausableToken.unpause();
+		    // _pausableToken.transferOwnership(wallet);
 		}
 
 		super._finalization();
