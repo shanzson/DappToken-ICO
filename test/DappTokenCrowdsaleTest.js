@@ -106,13 +106,17 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
       this.releaseTime
 		);
 
-		//Pause the token so that investors can't transfer tokens during crowdsale
-		await this.token.pause();
 
 		//Transfer token ownership to crowdsale
 		await this.token.addMinter(this.crowdsale.address);
-		// await this.token.renounceMinter();
     await this.token.transferOwnership(this.crowdsale.address);
+
+    //Transfer tokens to the crowdsale contract so that it has the token supply
+    // await this.token.transfer(this.crowdsale.address, tokenSupply);
+		await this.token.renounceMinter();
+
+    //Pause the token so that investors can't transfer tokens during crowdsale
+		await this.token.pause();
 
 
 		// Add investors to whitelist
@@ -312,27 +316,52 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
 	      beforeEach(async () => {
 	        // Meets the goal
 	        await this.crowdsale.buyTokens(investor1, { value: toWei(26), from: investor1 });
+
+    			let tokenSupply = await this.token.totalSupply();
+    			console.log('tokenSupply: ', tokenSupply.toString());
+
 	        await this.crowdsale.buyTokens(investor2, { value: toWei(26), from: investor2 });
+    			
+    			
+    			tokenSupply = await this.token.totalSupply();
+    			console.log('tokenSupply: ', tokenSupply.toString());
 
+    			let goal = await this.crowdsale.goalReached();
+					console.log("Goal Reached: ", goal);
+					
+    			await this.token.transfer(this.crowdsale.address, tokenSupply);
+					
+					let balance1 = await this.token.balanceOf(investor1);
+					let balance2 = await this.token.balanceOf(investor2);
+					balance1 = balance1.toString();
+					balance2 = balance2.toString();
+					console.log("Balance1: ", balance1);
+					console.log("Balance2: ", balance2);
 
-          // Enables token transfers
-          await this.token.transfer(investor1, 1, { from: investor1 }).should.be.fulfilled;
+   				//Unpauses the token 
+   				const p = await this.token.paused();
+   				console.log("Paused: ", p);
 
+   				const goalReached = await this.crowdsale.goalReached();
+      		goalReached.should.be.true;
 
 	        // Fastforward past end time
 	        await increaseTimeTo(this.closingTime + 1);
 	        // Finalize the crowdsale
 	        await this.crowdsale.finalize({ from: _ });
 
-	        const goalReached = await this.crowdsale.goalReached();
-      		goalReached.should.be.true;
-
-      		//Owner _ unpauses
+	        //Owner _ unpauses
       		await this.token.unpause({from: _});
 
    				//Unpauses the token 
    				const paused = await this.token.paused();
    				paused.should.be.false;
+   				console.log("Paused: ", paused);
+
+					// Enables token transfers
+          await this.token.transfer(investor1, 1, { from: investor2 }).should.be.fulfilled;
+
+	        
 	      });
       	// it('handles the goal reached', async () => {
 
@@ -352,8 +381,6 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
 	      //   foundersAmount = foundersAmount / (10 ** this.decimals);
 
 	      //   assert.equal(foundersTimelockBalance.toString(), foundersAmount.toString());
-
-
 
 
        //  	await this.crowdsale.claimRefund(investor2, { from: investor2 }).should.be.rejectedWith('revert');

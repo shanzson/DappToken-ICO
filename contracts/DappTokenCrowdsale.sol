@@ -126,7 +126,7 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
 
 		    // Unpause the token
 		    ERC20PausableExtended _pausableToken = ERC20PausableExtended(token_address);
-		    // _pausableToken.unpause();
+		    _pausableToken.unpause();
 		    _pausableToken.transferOwnership(_wallet);
 		}
 
