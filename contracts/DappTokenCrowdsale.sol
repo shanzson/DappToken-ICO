@@ -9,17 +9,22 @@ import "openzeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol
 import "openzeppelin-solidity/contracts/crowdsale/validation/TimedCrowdsale.sol";
 import "openzeppelin-solidity/contracts/crowdsale/validation/WhitelistCrowdsale.sol";
 import "openzeppelin-solidity/contracts/crowdsale/distribution/RefundablePostDeliveryCrowdsale.sol";
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/TokenTimelock.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 
-contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowdsale, WhitelistCrowdsale, RefundablePostDeliveryCrowdsale, Ownable{
+contract ERC20PausableExtended is ERC20Pausable, Ownable {
+
+}
+
+contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowdsale, WhitelistCrowdsale, RefundablePostDeliveryCrowdsale{
 	// Minimum investor contribution - 0.002 Ether
 	// Maximum investor contribution - 50 Ether
 	uint256 public investorMincap = 2000000000000000; //0.002 ether, here 2*10^15 wei
 	uint256 public investorHardcap = 50000000000000000000; //50 ether, here 50*10^18
 	mapping(address => uint256) public contributions;
-	address token_address;
+	address private token_address;
+	address private _wallet;
 	IERC20 private token_reference;
 	//Crowdsale stages
 	// enum CrowdsaleStage{ PreICO, ICO }
@@ -70,6 +75,8 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
     	foundationFund = _foundationFund;
     	partnersFund   = _partnersFund;
     	releaseTime    = _releaseTime;
+
+    	_wallet = wallet;
 	}
 
 	function getUserContribution(address _beneficiary) 
@@ -118,9 +125,9 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
 
 
 		    // Unpause the token
-		    // ERC20Pausable _pausableToken = ERC20Pausable(token_address);
+		    ERC20PausableExtended _pausableToken = ERC20PausableExtended(token_address);
 		    // _pausableToken.unpause();
-		    // _pausableToken.transferOwnership(wallet);
+		    _pausableToken.transferOwnership(_wallet);
 		}
 
 		super._finalization();

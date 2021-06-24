@@ -57,12 +57,13 @@ const DappToken = artifacts.require("DappToken");
 const DappTokenCrowdsale = artifacts.require("DappTokenCrowdsale.sol");
 
 
-contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
+contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund, foundationFund, partnersFund])=> {
 
 	beforeEach(async () => {
-		this.token = await DappToken.new('Dapp Token', 'DTC', 2);
+		this.token = await DappToken.new('Dapp Token', 'DTC', 18);
 
 		function weeks (val) { return val * 7 * 24 * 60 * 60; }
+		function years (val) { return val * 365 * 24 * 60 * 60; }
 
 		//Crowdsale config
 		this.rate = 500;       //rate is the conversion between wei and the smallest and indivisible token unit
@@ -82,6 +83,10 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
     this.foundersPercentage   = "10";
     this.foundationPercentage = "10";
     this.partnersPercentage   = "10";
+    this.foundersFund = foundersFund;
+    this.foundationFund = foundationFund;
+    this.partnersFund = partnersFund;
+    this.releaseTime  = this.closingTime + years(1);
 
 		//ICO Stages
 		this.preIcoStage = '0';
@@ -94,15 +99,20 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 			this.cap,
 			this.openingTime,
 			this.closingTime,		
-			this.goal
+			this.goal,
+			this.foundersFund,
+      this.foundationFund,
+      this.partnersFund,
+      this.releaseTime
 		);
 
 		//Pause the token so that investors can't transfer tokens during crowdsale
-		// await this.token.pause();
+		await this.token.pause();
 
 		//Transfer token ownership to crowdsale
 		await this.token.addMinter(this.crowdsale.address);
-		await this.token.renounceMinter();
+		// await this.token.renounceMinter();
+    await this.token.transferOwnership(this.crowdsale.address);
 
 
 		// Add investors to whitelist
@@ -276,7 +286,22 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 	        await increaseTimeTo(this.closingTime + 1);
 	        // Finalize the crowdsale
 	        await this.crowdsale.finalize({ from: _ });
-	      });
+
+	        const owner = await this.token.owner();
+
+	        const result1 = await this.token.isPauser(owner);
+	        const result2 = await this.token.isPauser(this.token.address);
+	        const result3 = await this.token.isPauser(_);
+
+	        console.log("Owner: ", owner);
+	        console.log("isPauser: ", result1);
+	        console.log("_ address: ", _);
+	        console.log("isPauser: ", result3);
+	        console.log("Token address: ", this.token.address);
+	        console.log("isPauser: ", result2);
+	        console.log("Crowdsale Add: ", this.crowdsale.address);
+
+	        });
 
       	it('allows the investor to claim refund', async () => {
         	await this.crowdsale.claimRefund(investor2, { from: investor2 }).should.be.fulfilled;
@@ -289,22 +314,51 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2])=> {
 	        await this.crowdsale.buyTokens(investor1, { value: toWei(26), from: investor1 });
 	        await this.crowdsale.buyTokens(investor2, { value: toWei(26), from: investor2 });
 
+
+          // Enables token transfers
+          await this.token.transfer(investor1, 1, { from: investor1 }).should.be.fulfilled;
+
+
 	        // Fastforward past end time
 	        await increaseTimeTo(this.closingTime + 1);
 	        // Finalize the crowdsale
 	        await this.crowdsale.finalize({ from: _ });
-	      });
-      	it('handles the goal reached', async () => {
-      		const goalReached = await this.crowdsale.goalReached();
+
+	        const goalReached = await this.crowdsale.goalReached();
       		goalReached.should.be.true;
+
+      		//Owner _ unpauses
+      		await this.token.unpause({from: _});
 
    				//Unpauses the token 
    				const paused = await this.token.paused();
    				paused.should.be.false;
-      	});
-      	it('does not allow the investor to claim refund', async () => {
-        	await this.crowdsale.claimRefund(investor2, { from: investor2 }).should.be.rejectedWith('revert');
-      	});	
+	      });
+      	// it('handles the goal reached', async () => {
+
+
+       //    // Founders
+	      //   const foundersTimelockAddress = await this.crowdsale.foundersTimelock();
+	      //   let foundersTimelockBalance = await this.token.balanceOf(foundersTimelockAddress);
+	      //   foundersTimelockBalance = foundersTimelockBalance.toString();
+	      //   foundersTimelockBalance = foundersTimelockBalance / (10 ** this.decimals);
+
+
+       //    let totalSupply = await this.token.totalSupply();
+       //    totalSupply = totalSupply.toString();
+
+	      //   let foundersAmount = totalSupply / this.foundersPercentage;
+	      //   foundersAmount = foundersAmount.toString();
+	      //   foundersAmount = foundersAmount / (10 ** this.decimals);
+
+	      //   assert.equal(foundersTimelockBalance.toString(), foundersAmount.toString());
+
+
+
+
+       //  	await this.crowdsale.claimRefund(investor2, { from: investor2 }).should.be.rejectedWith('revert');
+      	// });
+
       });
 	  });
 
