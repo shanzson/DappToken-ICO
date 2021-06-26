@@ -60,13 +60,13 @@ const DappTokenCrowdsale = artifacts.require("DappTokenCrowdsale.sol");
 contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund, foundationFund, partnersFund])=> {
 
 	beforeEach(async () => {
-		this.token = await DappToken.new('Dapp Token', 'DTC', 18);
+		this.token = await DappToken.new('Dapp Token', 'DTC', 1);
 
 		function weeks (val) { return val * 7 * 24 * 60 * 60; }
 		function years (val) { return val * 365 * 24 * 60 * 60; }
 
 		//Crowdsale config
-		this.rate = 20;       //rate is the conversion between wei and the smallest and indivisible token unit
+		this.rate = 1;       //rate is the conversion between wei and the smallest and indivisible token unit
 		this.wallet = wallet;  // Address where funds are collected
 		this.cap = toWei(100); //Total amount to be raised (100 Ether);
 		this.goal = toWei(50); //Goal below which Refunding to investors happens
@@ -133,7 +133,7 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
 	describe('Crowdsale', () =>{
 		it('Tracks the rate', async () => {
 			const rate = await this.crowdsale.rate();
-			rate.should.be.a.bignumber.that.equals('20');
+			rate.should.be.a.bignumber.that.equals('1');
 		});
 		it('Tracks the wallet', async () => {
 			const wallet = await this.crowdsale.wallet();
@@ -369,11 +369,13 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
         const foundersTimelockAddress = await this.crowdsale.foundersTimelock();
         let foundersTimelockBalance = await this.token.balanceOf(foundersTimelockAddress);
         foundersTimelockBalance = foundersTimelockBalance.toString();
-        foundersTimelockBalance = foundersTimelockBalance / (10 ** this.decimals);
+        console.log("foundersTimelockBalance: ", foundersTimelockBalance);
+        foundersTimelockBalance = foundersTimelockBalance / (10 ** 18);
 
         let foundersAmount = totalSupply / this.foundersPercentage;
         foundersAmount = foundersAmount.toString();
-        foundersAmount = foundersAmount / (10 ** this.decimals);
+        console.log("foundersAmount: ", foundersAmount);
+        foundersAmount = foundersAmount / (10 ** 18);
 
         assert.equal(foundersTimelockBalance.toString(), foundersAmount.toString());
         	await this.crowdsale.claimRefund(investor2, { from: investor2 }).should.be.rejectedWith('revert');

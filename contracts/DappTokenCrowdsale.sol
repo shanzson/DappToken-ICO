@@ -50,6 +50,8 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Fina
 	  address public foundationTimelock;
 	  address public partnersTimelock;
 
+	//   
+
 	constructor(
 		uint256 rate, 
 		address payable wallet, 
@@ -114,15 +116,15 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Fina
 			ERC20Mintable _mintableToken = ERC20Mintable(token_address); 
 			uint256 _alreadyMinted = _mintableToken.totalSupply(); //_alreadyMinted is the tokens minted as a part of tokenSalePercentage
 
-			uint256 _finalTotalSupply = _alreadyMinted.mul(tokenSalePercentage).div(100);
+			uint256 _finalTotalSupply = _alreadyMinted.div(tokenSalePercentage).mul(100);
 
 		    foundersTimelock   = address(new TokenTimelock(token_reference, foundersFund, releaseTime));
 		    foundationTimelock = address(new TokenTimelock(token_reference, foundationFund, releaseTime));
 		    partnersTimelock   = address(new TokenTimelock(token_reference, partnersFund, releaseTime));
 
-		    _mintableToken.mint(address(foundersTimelock),   _finalTotalSupply.div(foundersPercentage));
-		    _mintableToken.mint(address(foundationTimelock), _finalTotalSupply.div(foundationPercentage));
-		    _mintableToken.mint(address(partnersTimelock),   _finalTotalSupply.div(partnersPercentage));
+		    _mintableToken.mint(address(foundersTimelock),   _finalTotalSupply.mul(foundersPercentage).div(100));
+		    _mintableToken.mint(address(foundationTimelock), _finalTotalSupply.mul(foundationPercentage).div(100));
+		    _mintableToken.mint(address(partnersTimelock),   _finalTotalSupply.mul(partnersPercentage).div(100));
 
 
 		    // Unpause the token
