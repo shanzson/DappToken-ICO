@@ -6,9 +6,10 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol";
 import "openzeppelin-solidity/contracts/crowdsale/Crowdsale.sol";
 import "openzeppelin-solidity/contracts/crowdsale/emission/MintedCrowdsale.sol";
 import "openzeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol";
-import "openzeppelin-solidity/contracts/crowdsale/validation/TimedCrowdsale.sol";
+// import "openzeppelin-solidity/contracts/crowdsale/validation/TimedCrowdsale.sol";
 import "openzeppelin-solidity/contracts/crowdsale/validation/WhitelistCrowdsale.sol";
 import "openzeppelin-solidity/contracts/crowdsale/distribution/RefundablePostDeliveryCrowdsale.sol";
+import "openzeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/TokenTimelock.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
@@ -17,7 +18,7 @@ contract ERC20PausableExtended is ERC20Pausable, Ownable {
 
 }
 
-contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowdsale, WhitelistCrowdsale, RefundablePostDeliveryCrowdsale{
+contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale, WhitelistCrowdsale, RefundablePostDeliveryCrowdsale{
 	// Minimum investor contribution - 0.002 Ether
 	// Maximum investor contribution - 50 Ether
 	uint256 public investorMincap = 2000000000000000; //0.002 ether, here 2*10^15 wei
@@ -119,9 +120,9 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Time
 		    foundationTimelock = address(new TokenTimelock(token_reference, foundationFund, releaseTime));
 		    partnersTimelock   = address(new TokenTimelock(token_reference, partnersFund, releaseTime));
 
-		    _mintableToken.mint(address(foundersTimelock),   _finalTotalSupply.mul(foundersPercentage).div(100));
-		    _mintableToken.mint(address(foundationTimelock), _finalTotalSupply.mul(foundationPercentage).div(100));
-		    _mintableToken.mint(address(partnersTimelock),   _finalTotalSupply.mul(partnersPercentage).div(100));
+		    _mintableToken.mint(address(foundersTimelock),   _finalTotalSupply.div(foundersPercentage));
+		    _mintableToken.mint(address(foundationTimelock), _finalTotalSupply.div(foundationPercentage));
+		    _mintableToken.mint(address(partnersTimelock),   _finalTotalSupply.div(partnersPercentage));
 
 
 		    // Unpause the token
