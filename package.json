@@ -1,5 +1,18 @@
 {
+  "name": "ico",
+  "version": "1.0.0",
+  "description": "Real World ICO",
+  "main": "truffle.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Shantanu Sontakke",
+  "license": "ISC",
   "dependencies": {
+    "@chainlink/contracts": "^0.1.9",
     "babel-polyfill": "^6.26.0",
     "babel-preset-es2015": "^6.18.0",
     "babel-preset-stage-2": "^6.18.0",
@@ -25,5 +38,8 @@
     "truffle-hdwallet-provider": "^1.0.17",
     "web3": "^1.2.1",
     "web3-utils": "^1.3.6"
+  },
+  "devDependencies": {
+    "truffle-plugin-verify": "^0.5.9"
   }
 }

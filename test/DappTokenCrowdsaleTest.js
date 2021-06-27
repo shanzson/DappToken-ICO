@@ -56,6 +56,9 @@ require('chai')
 const DappToken = artifacts.require("DappToken");
 const DappTokenCrowdsale = artifacts.require("DappTokenCrowdsale.sol");
 const TokenTimelock = artifacts.require("TokenTimelock.sol");
+const MockPriceFeed = artifacts.require('MockV3Aggregator')
+const PriceConsumerV3 = artifacts.require('PriceConsumerV3')
+
 
 
 contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund, foundationFund, partnersFund])=> {
@@ -67,7 +70,7 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
 		function weeks (val) { return val * 7 * 24 * 60 * 60; }
 		function years (val) { return val * 365 * 24 * 60 * 60; }
 
-		//Crowdsale config
+		// Crowdsale config
 		this.rate = 1;       //rate is the conversion between wei and the smallest and indivisible token unit
 		this.wallet = wallet;  // Address where funds are collected
 		this.cap = toWei(100); //Total amount to be raised (100 Ether);
@@ -90,7 +93,7 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
     this.partnersFund = partnersFund;
     this.releaseTime  = this.closingTime + years(1);
 
-		//ICO Stages
+		// ICO Stages
 		this.preIcoStage = '0';
 		this.icoStage = '1';
 
@@ -109,18 +112,18 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
 		);
 
 
-		//Transfer token ownership to crowdsale
+		// Transfer token ownership to crowdsale
 		await this.token.addMinter(this.crowdsale.address);
     await this.token.transferOwnership(this.crowdsale.address);
 
-    //Transfer tokens to the crowdsale contract so that it has the token supply
+    // Transfer tokens to the crowdsale contract so that it has the token supply
     // await this.token.transfer(this.crowdsale.address, tokenSupply);
 		await this.token.renounceMinter();
 
-    //Pause the token so that investors can't transfer tokens during crowdsale
+    // Pause the token so that investors can't transfer tokens during crowdsale
 		await this.token.pause();
 
-		//Transfer Pauser role to crowdsale contract
+		// Transfer Pauser role to crowdsale contract
 		await this.token.addPauser(this.crowdsale.address, {from: _});
 		await this.token.renouncePauser(); //from _
 
@@ -128,8 +131,11 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
     await this.crowdsale.addWhitelisted(investor1);
     await this.crowdsale.addWhitelisted(investor2);
 
-		//Advance time to crowdsale start
+		// Advance time to crowdsale start
 		const increasedTime = await increaseTimeTo(this.openingTime + 1);
+
+		// For Testing Price Feed
+		let priceConsumerV3, mockPriceFeed
 	});
 
 	describe('Crowdsale', () =>{
@@ -471,6 +477,17 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
 	      total.should.equal(100);
     	});
     });
+
+    describe('#getLatestPrice', () => {
+        let price = "2000000000000000000"
+        beforeEach(async () => {
+            mockPriceFeed = await MockPriceFeed.new(8, price)
+            priceConsumerV3 = await PriceConsumerV3.new(mockPriceFeed.address)
+        })
+        it('returns a price', async () => {
+            assert.equal(await priceConsumerV3.getLatestPrice(), price)
+        })
+    })
 
   });
 
