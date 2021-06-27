@@ -1,9 +1,13 @@
 const toWei = require('./helpers/toWei');
+const toWei_BN = require('./helpers/toWei_BN');
 const chai = require('chai');
 const BN = require('bn.js');
+const script_price = require('../scripts/price-consumer-scripts/get-latest-price.js');
+const RPC_URL= process.env.RPC_URL;
 
 Web3 = require('web3');
-let web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
+let web3 = new Web3("http://localhost:8545");
+
 web3.eth.getBlockNumber()
 	.then((block) => console.log('Block: ', block));
 
@@ -56,10 +60,8 @@ require('chai')
 const DappToken = artifacts.require("DappToken");
 const DappTokenCrowdsale = artifacts.require("DappTokenCrowdsale.sol");
 const TokenTimelock = artifacts.require("TokenTimelock.sol");
-const MockPriceFeed = artifacts.require('MockV3Aggregator')
-const PriceConsumerV3 = artifacts.require('PriceConsumerV3')
-
-
+const MockPriceFeed = artifacts.require('MockV3Aggregator');
+const PriceConsumerV3 = artifacts.require('PriceConsumerV3');
 
 contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund, foundationFund, partnersFund])=> {
 
@@ -70,18 +72,38 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
 		function weeks (val) { return val * 7 * 24 * 60 * 60; }
 		function years (val) { return val * 365 * 24 * 60 * 60; }
 
+		//Get Current Price
+		let web3 = new Web3(RPC_URL);
+	  const aggregatorV3InterfaceABI = [{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"description","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint80","name":"_roundId","type":"uint80"}],"name":"getRoundData","outputs":[{"internalType":"uint80","name":"roundId","type":"uint80"},{"internalType":"int256","name":"answer","type":"int256"},{"internalType":"uint256","name":"startedAt","type":"uint256"},{"internalType":"uint256","name":"updatedAt","type":"uint256"},{"internalType":"uint80","name":"answeredInRound","type":"uint80"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"latestRoundData","outputs":[{"internalType":"uint80","name":"roundId","type":"uint80"},{"internalType":"int256","name":"answer","type":"int256"},{"internalType":"uint256","name":"startedAt","type":"uint256"},{"internalType":"uint256","name":"updatedAt","type":"uint256"},{"internalType":"uint80","name":"answeredInRound","type":"uint80"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"version","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
+		const addr = "0x9326BFA02ADD2366b30bacB125260Af641031331";
+    const priceFeed = new web3.eth.Contract(aggregatorV3InterfaceABI, addr);
+
+
+		const current_price = await priceFeed.methods.latestRoundData().call().then((roundData) => {
+    // Do something with roundData
+    return roundData.answer / 10**8
+  	});
+
+  	this.current_price = current_price;
+    var cap = 50 * 1000000; //50 Million
+    cap = cap/current_price; //Total amount to be raised in ETH
+    this._cap = cap; //For pretty output and calculation
+
 		// Crowdsale config
-		this.rate = 1;       //rate is the conversion between wei and the smallest and indivisible token unit
+
+		this.rate = toWei_BN(this.current_price/0.001); //rate is the conversion between wei and the smallest and indivisible token unit
 		this.wallet = wallet;  // Address where funds are collected
-		this.cap = toWei(100); //Total amount to be raised (100 Ether);
+		this.cap = toWei_BN(100); //Total amount to be raised (100 Ether);
 		this.goal = toWei(50); //Goal below which Refunding to investors happens
+
+		// Goal can be changed to $12.5 Million but is set to 50 for testing all scenarios 
 
 		const latest_time = await latestTime('latest');
 		this.openingTime = weeks(1) + latest_time;
 		this.closingTime = this.openingTime + weeks(1);
 
-		this.investorMinCap = toWei(0.002);
-		this.investorHardCap = toWei(50);
+		this.investorMinCap = toWei_BN(500/this.current_price); // MinCap is $500
+		this.investorHardCap = toWei_BN(5000000/this.current_price); //HardCap is $5 Million
 
 		// Token Distribution
     this.tokenSalePercentage  = "70";
@@ -135,13 +157,22 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
 		const increasedTime = await increaseTimeTo(this.openingTime + 1);
 
 		// For Testing Price Feed
-		let priceConsumerV3, mockPriceFeed
+		let priceConsumerV3, mockPriceFeed;
+	});
+
+	describe('Get Latest Price', () =>{
+		it('Price of ETH in USD', async () => {
+			console.log(this.current_price);
+		});
+		it('Maximum amount to be raised or Cap', async () => {
+			console.log(this._cap);
+		});
 	});
 
 	describe('Crowdsale', () =>{
 		it('Tracks the rate', async () => {
 			const rate = await this.crowdsale.rate();
-			rate.should.be.a.bignumber.that.equals('1');
+			rate.should.be.a.bignumber.that.equals(toWei_BN(this.current_price/0.001));
 		});
 		it('Tracks the wallet', async () => {
 			const wallet = await this.crowdsale.wallet();
@@ -479,13 +510,13 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
     });
 
     describe('#getLatestPrice', () => {
-        let price = "2000000000000000000"
+        let price = "2000000000000000000";
         beforeEach(async () => {
-            mockPriceFeed = await MockPriceFeed.new(8, price)
-            priceConsumerV3 = await PriceConsumerV3.new(mockPriceFeed.address)
+            mockPriceFeed = await MockPriceFeed.new(8, price);
+            priceConsumerV3 = await PriceConsumerV3.new(mockPriceFeed.address);
         })
         it('returns a price', async () => {
-            assert.equal(await priceConsumerV3.getLatestPrice(), price)
+            assert.equal(await priceConsumerV3.getLatestPrice(), price);
         })
     })
 
