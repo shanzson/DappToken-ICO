@@ -1,7 +1,5 @@
 const DappToken = artifacts.require("./DappToken.sol");
 const DappTokenCrowdsale = artifacts.require("./DappTokenCrowdsale.sol");
-// const TokenTimelock = artifacts.require("./TokenTimelock.sol");
-
 
 const toWei = require('../test/helpers/toWei');
 
@@ -33,10 +31,12 @@ module.exports = async function(deployer, network, accounts) {
   const _closingTime    = _openingTime + duration.weeks(1);
   const _cap            = toWei(100);
   const _goal           = toWei(50);
-  const _foundersFund   = accounts[0]; // TODO: Replace me
-  const _foundationFund = accounts[0]; // TODO: Replace me
-  const _partnersFund   = accounts[0]; // TODO: Replace me
-  const _releaseTime    = _closingTime + duration.days(1);
+  const _ReserveWalletFund   = accounts[1]; // TODO: Replace me
+  const _InterestPayoutWalletFund = accounts[2]; // TODO: Replace me
+  const _TeamsHRFund   = accounts[3]; // TODO: Replace me
+  const _CompanyGeneralFund   = accounts[4]; // TODO: Replace me
+  const _AirdropFund   = accounts[5]; // TODO: Replace me
+
 
   await deployer.deploy(
     DappTokenCrowdsale,
@@ -47,10 +47,11 @@ module.exports = async function(deployer, network, accounts) {
     _openingTime,
     _closingTime,
     _goal,
-    _foundersFund,
-    _foundationFund,
-    _partnersFund,
-    _releaseTime
+    _ReserveWalletFund,
+    _InterestPayoutWalletFund,
+    _TeamsHRFund ,
+    _CompanyGeneralFund,
+    _AirdropFund
   );
 
   return true;

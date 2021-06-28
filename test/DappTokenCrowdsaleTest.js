@@ -63,7 +63,7 @@ const TokenTimelock = artifacts.require("TokenTimelock.sol");
 const MockPriceFeed = artifacts.require('MockV3Aggregator');
 const PriceConsumerV3 = artifacts.require('PriceConsumerV3');
 
-contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund, foundationFund, partnersFund])=> {
+contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWalletFund, InterestPayoutWalletFund, TeamsHRFund, CompanyGeneralFund, AirdropFund])=> {
 
 	beforeEach(async () => {
 		this.decimals = 18;
@@ -106,13 +106,19 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
 		this.investorHardCap = toWei_BN(5000000/this.current_price); //HardCap is $5 Million
 
 		// Token Distribution
-    this.tokenSalePercentage  = "70";
-    this.foundersPercentage   = "10";
-    this.foundationPercentage = "10";
-    this.partnersPercentage   = "10";
-    this.foundersFund = foundersFund;
-    this.foundationFund = foundationFund;
-    this.partnersFund = partnersFund;
+		this.TokenSalePercentage   = "25";
+	  this.ReserveWalletPercentage = "30";
+	  this.InterestPayoutWalletPercentage  = "20";
+	  this.TeamsHRPercentage    = "10";
+	  this.CompanyGeneralFundPercentage = "13";
+	  this.AirdropPercentage = "2";
+
+		this.ReserveWalletFund = ReserveWalletFund;
+	  this.InterestPayoutWalletFund = InterestPayoutWalletFund;
+	  this.TeamsHRFund = TeamsHRFund;
+	  this.CompanyGeneralFund = CompanyGeneralFund;
+	  this.AirdropFund = AirdropFund;
+
     this.releaseTime  = this.closingTime + years(1);
 
 		// ICO Stages
@@ -127,10 +133,11 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
 			this.openingTime,
 			this.closingTime,		
 			this.goal,
-			this.foundersFund,
-      this.foundationFund,
-      this.partnersFund,
-      this.releaseTime
+			this.ReserveWalletFund,
+      this.InterestPayoutWalletFund,
+      this.TeamsHRFund ,
+      this.CompanyGeneralFund,
+      this.AirdropFund
 		);
 
 
@@ -202,18 +209,6 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
    it('rejects contributions from non-whitelisted investors', async () => {
      const notWhitelisted = _;
      await this.crowdsale.buyTokens(notWhitelisted,{ value: toWei(1), from: notWhitelisted}).should.be.rejectedWith('revert');
-   });
-  });
-
-  describe('Refundable crowdsale', () => {
-    beforeEach( async () => {
-      await this.crowdsale.buyTokens(investor1, { value: toWei(1), from: investor1 });
-    });
-
-    describe('during crowdsale', () => {
-      it('prevents the investor from claiming refund', async () => {
-      await this.crowdsale.claimRefund(investor1, { from: investor1 }).should.be.rejectedWith('revert');
-    });
    });
   });
 
@@ -324,35 +319,35 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
   // 	});			
 
 	  describe('finalizing the crowdsale', () => {
-    	describe('when the goal is not reached', () => {
-	      beforeEach(async () => {
-	        // Do not meet the goal
-	        await this.crowdsale.buyTokens(investor2, { value: toWei(1), from: investor2 });
-	        // Fastforward past end time
-	        await increaseTimeTo(this.closingTime + 1);
-	        // Finalize the crowdsale
-	        await this.crowdsale.finalize({ from: _ });
+    	// describe('when the goal is not reached', () => {
+	    //   beforeEach(async () => {
+	    //     // Do not meet the goal
+	    //     await this.crowdsale.buyTokens(investor2, { value: toWei(1), from: investor2 });
+	    //     // Fastforward past end time
+	    //     await increaseTimeTo(this.closingTime + 1);
+	    //     // Finalize the crowdsale
+	    //     await this.crowdsale.finalize({ from: _ });
 
-	        const owner = await this.token.owner();
+	    //     const owner = await this.token.owner();
 
-	        const result1 = await this.token.isPauser(owner);
-	        const result2 = await this.token.isPauser(this.token.address);
-	        const result3 = await this.token.isPauser(_);
+	    //     const result1 = await this.token.isPauser(owner);
+	    //     const result2 = await this.token.isPauser(this.token.address);
+	    //     const result3 = await this.token.isPauser(_);
 
-	        console.log("Owner: ", owner);
-	        console.log("isPauser: ", result1);
-	        console.log("_ address: ", _);
-	        console.log("isPauser: ", result3);
-	        console.log("Token address: ", this.token.address);
-	        console.log("isPauser: ", result2);
-	        console.log("Crowdsale Add: ", this.crowdsale.address);
+	    //     console.log("Owner: ", owner);
+	    //     console.log("isPauser: ", result1);
+	    //     console.log("_ address: ", _);
+	    //     console.log("isPauser: ", result3);
+	    //     console.log("Token address: ", this.token.address);
+	    //     console.log("isPauser: ", result2);
+	    //     console.log("Crowdsale Add: ", this.crowdsale.address);
 
-	        });
+	    //     });
 
-      	it('allows the investor to claim refund', async () => {
-        	await this.crowdsale.claimRefund(investor2, { from: investor2 }).should.be.fulfilled;
-      	});	
-      });
+     //  	it('allows the investor to claim refund', async () => {
+     //    	await this.crowdsale.claimRefund(investor2, { from: investor2 }).should.be.fulfilled;
+     //  	});	
+     //  });
 
       describe('when the goal is reached', () => {
 	      beforeEach(async () => {
@@ -363,10 +358,6 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
     			console.log('tokenSupply: ', tokenSupply.toString());
 
 	        await this.crowdsale.buyTokens(investor2, { value: toWei(26), from: investor2 });
-    			
-
-    			let goal = await this.crowdsale.goalReached();
-					console.log("Goal Reached: ", goal);
 
 				  // Fastforward past end time
 	        await increaseTimeTo(this.closingTime + 1);
@@ -376,9 +367,6 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
 
 					tokenSupply = await this.token.totalSupply();
     			console.log('tokenSupply: ', tokenSupply.toString());
-
-   				const goalReached = await this.crowdsale.goalReached();
-      		goalReached.should.be.true;
 
    				//Check the token is Unpaused 
    				const paused = await this.token.paused();
@@ -404,110 +392,75 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, foundersFund,
         let totalSupply = await this.token.totalSupply();
         totalSupply = totalSupply.toString();
 
-        // Founders
-        const foundersTimelockAddress = await this.crowdsale.foundersTimelock();
-        let foundersTimelockBalance = await this.token.balanceOf(foundersTimelockAddress);
-        foundersTimelockBalance = foundersTimelockBalance.toString();
-        console.log("foundersTimelockBalance: ", foundersTimelockBalance);
-        foundersTimelockBalance = foundersTimelockBalance / (10 ** this.decimals);
-        let foundersAmount = totalSupply / this.foundersPercentage;
-        foundersAmount = foundersAmount.toString();
-        console.log("foundersAmount: ", foundersAmount);
-        foundersAmount = foundersAmount / (10 ** this.decimals);
+        //Reserve Wallet
+        let ReserveWalletFundBalance = await this.token.balanceOf(this.ReserveWalletFund);
+        ReserveWalletFundBalance = ReserveWalletFundBalance / (10 ** this.decimals);
+        ReserveWalletFundBalance = ReserveWalletFundBalance.toString();
+        console.log("ReserveWalletFundBalance: ", ReserveWalletFundBalance);
 
-        assert.equal(foundersTimelockBalance.toString(), foundersAmount.toString());
+        let ReserveWalletFundAmount = (totalSupply * this.ReserveWalletPercentage)/100;
+        ReserveWalletFundAmount = ReserveWalletFundAmount / (10 ** this.decimals);
+        ReserveWalletFundAmount = ReserveWalletFundAmount.toString();
+        console.log("ReserveWalletFundAmount: ", ReserveWalletFundAmount);
 
-        //Foundation
-				const foundationTimelockAddress = await this.crowdsale.foundationTimelock();
-        let foundationTimelockBalance = await this.token.balanceOf(foundationTimelockAddress);
-        foundationTimelockBalance = foundationTimelockBalance.toString();
-        foundationTimelockBalance = foundationTimelockBalance / (10 ** this.decimals);
+        assert.equal(ReserveWalletFundBalance.slice(0,10), ReserveWalletFundAmount.slice(0,10));
 
-        let foundationAmount = totalSupply / this.foundationPercentage;
-        foundationAmount = foundationAmount.toString();
-        foundationAmount = foundationAmount / (10 ** this.decimals);
+        // this.InterestPayoutWalletFund,
+        // this.TeamsHRFund ,
+        // this.CompanyGeneralFund,
+        // this.AirdropFund
 
-        assert.equal(foundationTimelockBalance.toString(), foundationAmount.toString());
-
-        // Partners
-        const partnersTimelockAddress = await this.crowdsale.partnersTimelock();
-        let partnersTimelockBalance = await this.token.balanceOf(partnersTimelockAddress);
-        partnersTimelockBalance = partnersTimelockBalance.toString();
-        partnersTimelockBalance = partnersTimelockBalance / (10 ** this.decimals);
-
-        let partnersAmount = totalSupply / this.partnersPercentage;
-        partnersAmount = partnersAmount.toString();
-        partnersAmount = partnersAmount / (10 ** this.decimals);
-
-        assert.equal(partnersTimelockBalance.toString(), partnersAmount.toString());
-
-        // Can't withdraw from timelocks
-        const foundersTimelock = await TokenTimelock.at(foundersTimelockAddress);
-        await foundersTimelock.release().should.be.rejectedWith('revert');
-
-        const foundationTimelock = await TokenTimelock.at(foundationTimelockAddress);
-        await foundationTimelock.release().should.be.rejectedWith('revert');
-
-        const partnersTimelock = await TokenTimelock.at(partnersTimelockAddress);
-        await partnersTimelock.release().should.be.rejectedWith('revert');
-
-        // Can withdraw from timelocks
-        await increaseTimeTo(this.releaseTime + 1);
-
-        await foundersTimelock.release().should.be.fulfilled;
-        await foundationTimelock.release().should.be.fulfilled;
-        await partnersTimelock.release().should.be.fulfilled;
 
         // Funds now have balances
 
-        // Founders
-        let foundersBalance = await this.token.balanceOf(this.foundersFund);
-        foundersBalance = foundersBalance.toString();
-        foundersBalance = foundersBalance / (10 ** this.decimals);
+        // // Founders
+        // let foundersBalance = await this.token.balanceOf(this.foundersFund);
+        // foundersBalance = foundersBalance.toString();
+        // foundersBalance = foundersBalance / (10 ** this.decimals);
 
-        assert.equal(foundersBalance.toString(), foundersAmount.toString());
+        // assert.equal(foundersBalance.toString(), foundersAmount.toString());
 
-        // Foundation
-        let foundationBalance = await this.token.balanceOf(this.foundationFund);
-        foundationBalance = foundationBalance.toString();
-        foundationBalance = foundationBalance / (10 ** this.decimals);
+        // // Foundation
+        // let foundationBalance = await this.token.balanceOf(this.foundationFund);
+        // foundationBalance = foundationBalance.toString();
+        // foundationBalance = foundationBalance / (10 ** this.decimals);
 
-        assert.equal(foundationBalance.toString(), foundationAmount.toString());
+        // assert.equal(foundationBalance.toString(), foundationAmount.toString());
 
-        // Partners
-        let partnersBalance = await this.token.balanceOf(this.partnersFund);
-        partnersBalance = partnersBalance.toString();
-        partnersBalance = partnersBalance / (10 ** this.decimals);
+        // // Partners
+        // let partnersBalance = await this.token.balanceOf(this.partnersFund);
+        // partnersBalance = partnersBalance.toString();
+        // partnersBalance = partnersBalance / (10 ** this.decimals);
 
-        assert.equal(partnersBalance.toString(), partnersAmount.toString());
-        	await this.crowdsale.claimRefund(investor2, { from: investor2 }).should.be.rejectedWith('revert');
+        // assert.equal(partnersBalance.toString(), partnersAmount.toString());
+        	// await this.crowdsale.claimRefund(investor2, { from: investor2 }).should.be.rejectedWith('revert');
       	});
 
       });
 	  });
 
-	  describe('token distribution', () => {
-    	it('tracks token distribution correctly', async () => {
-	      const tokenSalePercentage = await this.crowdsale.tokenSalePercentage();
-	      tokenSalePercentage.should.be.bignumber.eq(this.tokenSalePercentage, 'has correct tokenSalePercentage');
-	      const foundersPercentage = await this.crowdsale.foundersPercentage();
-	      foundersPercentage.should.be.bignumber.eq(this.foundersPercentage, 'has correct foundersPercentage');
-	      const foundationPercentage = await this.crowdsale.foundationPercentage();
-	      foundationPercentage.should.be.bignumber.eq(this.foundationPercentage, 'has correct foundationPercentage');
-	      const partnersPercentage = await this.crowdsale.partnersPercentage();
-	      partnersPercentage.should.be.bignumber.eq(this.partnersPercentage, 'has correct partnersPercentage');
-	    });
+	  // describe('token distribution', () => {
+   //  	it('tracks token distribution correctly', async () => {
+	  //     const tokenSalePercentage = await this.crowdsale.tokenSalePercentage();
+	  //     tokenSalePercentage.should.be.bignumber.eq(this.tokenSalePercentage, 'has correct tokenSalePercentage');
+	  //     const foundersPercentage = await this.crowdsale.foundersPercentage();
+	  //     foundersPercentage.should.be.bignumber.eq(this.foundersPercentage, 'has correct foundersPercentage');
+	  //     const foundationPercentage = await this.crowdsale.foundationPercentage();
+	  //     foundationPercentage.should.be.bignumber.eq(this.foundationPercentage, 'has correct foundationPercentage');
+	  //     const partnersPercentage = await this.crowdsale.partnersPercentage();
+	  //     partnersPercentage.should.be.bignumber.eq(this.partnersPercentage, 'has correct partnersPercentage');
+	  //   });
 
-    	it('is a valid percentage breakdown', async () => {
-	      const tokenSalePercentage = await this.crowdsale.tokenSalePercentage();
-	      const foundersPercentage = await this.crowdsale.foundersPercentage();
-	      const foundationPercentage = await this.crowdsale.foundationPercentage();
-	      const partnersPercentage = await this.crowdsale.partnersPercentage();
+   //  	it('is a valid percentage breakdown', async () => {
+	  //     const tokenSalePercentage = await this.crowdsale.tokenSalePercentage();
+	  //     const foundersPercentage = await this.crowdsale.foundersPercentage();
+	  //     const foundationPercentage = await this.crowdsale.foundationPercentage();
+	  //     const partnersPercentage = await this.crowdsale.partnersPercentage();
 
-	      const total = tokenSalePercentage.toNumber() + foundersPercentage.toNumber() + foundationPercentage.toNumber() + partnersPercentage.toNumber()
-	      total.should.equal(100);
-    	});
-    });
+	  //     const total = tokenSalePercentage.toNumber() + foundersPercentage.toNumber() + foundationPercentage.toNumber() + partnersPercentage.toNumber()
+	  //     total.should.equal(100);
+   //  	});
+   //  });
 
     describe('#getLatestPrice', () => {
         let price = "2000000000000000000";
