@@ -28,12 +28,12 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Fina
 	IERC20 private token_reference;
 	// uint[] percent;
 
-	uint TokenSalePercentage = 25;
-	uint ReserveWalletPercentage = 30;
-	uint InterestPayoutWalletPercentage = 20;
-	uint TeamsHRPercentage = 10;
-	uint CompanyGeneralFundPercentage = 13;
-	uint AirdropPercentage = 2;
+	uint8 public TokenSalePercentage = 25;
+	uint8 public ReserveWalletPercentage = 30;
+	uint8 public InterestPayoutWalletPercentage = 20;
+	uint8 public TeamsHRPercentage = 10;
+	uint8 public CompanyGeneralFundPercentage = 13;
+	uint8 public AirdropPercentage = 2;
 
 	//Crowdsale stages
 	// enum CrowdsaleStage{ PreICO, ICO }

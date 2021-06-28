@@ -395,8 +395,8 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
         //Reserve Wallet
         let ReserveWalletFundBalance = await this.token.balanceOf(this.ReserveWalletFund);
         ReserveWalletFundBalance = ReserveWalletFundBalance / (10 ** this.decimals);
-        ReserveWalletFundBalance = ReserveWalletFundBalance.toString();
         console.log("ReserveWalletFundBalance: ", ReserveWalletFundBalance);
+        ReserveWalletFundBalance = ReserveWalletFundBalance.toString();
 
         let ReserveWalletFundAmount = (totalSupply * this.ReserveWalletPercentage)/100;
         ReserveWalletFundAmount = ReserveWalletFundAmount / (10 ** this.decimals);
@@ -405,64 +405,92 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
 
         assert.equal(ReserveWalletFundBalance.slice(0,10), ReserveWalletFundAmount.slice(0,10));
 
-        // this.InterestPayoutWalletFund,
-        // this.TeamsHRFund ,
-        // this.CompanyGeneralFund,
-        // this.AirdropFund
+        //InterestPayout Wallet
+        let InterestPayoutWalletFundBalance = await this.token.balanceOf(this.InterestPayoutWalletFund);
+        InterestPayoutWalletFundBalance = InterestPayoutWalletFundBalance / (10 ** this.decimals);
+        InterestPayoutWalletFundBalance = InterestPayoutWalletFundBalance.toString();
+        console.log("InterestPayoutWalletFundBalance: ", InterestPayoutWalletFundBalance);
 
+        let InterestPayoutWalletFundAmount = (totalSupply * this.InterestPayoutWalletPercentage)/100;
+        InterestPayoutWalletFundAmount = InterestPayoutWalletFundAmount / (10 ** this.decimals);
+        InterestPayoutWalletFundAmount = InterestPayoutWalletFundAmount.toString();
+        console.log("InterestPayoutWalletFundAmount: ", InterestPayoutWalletFundAmount);
 
-        // Funds now have balances
+        assert.equal(InterestPayoutWalletFundBalance.slice(0,10), InterestPayoutWalletFundAmount.slice(0,10));
 
-        // // Founders
-        // let foundersBalance = await this.token.balanceOf(this.foundersFund);
-        // foundersBalance = foundersBalance.toString();
-        // foundersBalance = foundersBalance / (10 ** this.decimals);
+        //TeamsHRFund Wallet
+        let TeamsHRFundBalance = await this.token.balanceOf(this.TeamsHRFund);
+        TeamsHRFundBalance = TeamsHRFundBalance / (10 ** this.decimals);
+        console.log("TeamsHRFundBalance: ", TeamsHRFundBalance);
+        TeamsHRFundBalance = TeamsHRFundBalance.toString();
 
-        // assert.equal(foundersBalance.toString(), foundersAmount.toString());
+        let TeamsHRFundAmount = (totalSupply * this.TeamsHRPercentage)/100;
+        TeamsHRFundAmount = TeamsHRFundAmount / (10 ** this.decimals);
+        TeamsHRFundAmount = TeamsHRFundAmount.toString();
+        console.log("TeamsHRFundAmount: ", TeamsHRFundAmount);
 
-        // // Foundation
-        // let foundationBalance = await this.token.balanceOf(this.foundationFund);
-        // foundationBalance = foundationBalance.toString();
-        // foundationBalance = foundationBalance / (10 ** this.decimals);
+        assert.equal(TeamsHRFundBalance.slice(0,10), TeamsHRFundAmount.slice(0,10));
 
-        // assert.equal(foundationBalance.toString(), foundationAmount.toString());
+        //CompanyGeneralFund Wallet
+        let CompanyGeneralFundBalance = await this.token.balanceOf(this.CompanyGeneralFund);
+        CompanyGeneralFundBalance = CompanyGeneralFundBalance / (10 ** this.decimals);
+        console.log("CompanyGeneralFundBalance: ", CompanyGeneralFundBalance);
+        CompanyGeneralFundBalance = CompanyGeneralFundBalance.toString();
 
-        // // Partners
-        // let partnersBalance = await this.token.balanceOf(this.partnersFund);
-        // partnersBalance = partnersBalance.toString();
-        // partnersBalance = partnersBalance / (10 ** this.decimals);
+        let CompanyGeneralFundAmount = (totalSupply * this.CompanyGeneralFundPercentage)/100;
+        CompanyGeneralFundAmount = CompanyGeneralFundAmount / (10 ** this.decimals);
+        CompanyGeneralFundAmount = CompanyGeneralFundAmount.toString();
+        console.log("CompanyGeneralFundAmount: ", CompanyGeneralFundAmount);
 
-        // assert.equal(partnersBalance.toString(), partnersAmount.toString());
-        	// await this.crowdsale.claimRefund(investor2, { from: investor2 }).should.be.rejectedWith('revert');
+        assert.equal(CompanyGeneralFundBalance.slice(0,10), CompanyGeneralFundAmount.slice(0,10));
+
+        //AirdropFund Wallet
+        let AirdropFundBalance = await this.token.balanceOf(this.AirdropFund);
+        AirdropFundBalance = AirdropFundBalance / (10 ** this.decimals);
+        console.log("AirdropFundBalance: ", AirdropFundBalance);
+        AirdropFundBalance = AirdropFundBalance.toString();
+
+        let AirdropFundAmount = (totalSupply * this.AirdropPercentage)/100;
+        AirdropFundAmount = AirdropFundAmount / (10 ** this.decimals);
+        AirdropFundAmount = AirdropFundAmount.toString();
+        console.log("AirdropFundAmount: ", AirdropFundAmount);
+
+        assert.equal(AirdropFundBalance.slice(0,10), AirdropFundAmount.slice(0,10));
       	});
 
       });
 	  });
 
-	  // describe('token distribution', () => {
-   //  	it('tracks token distribution correctly', async () => {
-	  //     const tokenSalePercentage = await this.crowdsale.tokenSalePercentage();
-	  //     tokenSalePercentage.should.be.bignumber.eq(this.tokenSalePercentage, 'has correct tokenSalePercentage');
-	  //     const foundersPercentage = await this.crowdsale.foundersPercentage();
-	  //     foundersPercentage.should.be.bignumber.eq(this.foundersPercentage, 'has correct foundersPercentage');
-	  //     const foundationPercentage = await this.crowdsale.foundationPercentage();
-	  //     foundationPercentage.should.be.bignumber.eq(this.foundationPercentage, 'has correct foundationPercentage');
-	  //     const partnersPercentage = await this.crowdsale.partnersPercentage();
-	  //     partnersPercentage.should.be.bignumber.eq(this.partnersPercentage, 'has correct partnersPercentage');
-	  //   });
+	  describe('token distribution', () => {
+    	it('tracks token distribution correctly', async () => {
+	      const TokenSalePercentage = await this.crowdsale.TokenSalePercentage();
+	      TokenSalePercentage.should.be.bignumber.eq(this.TokenSalePercentage, 'has correct TokenSalePercentage');
+	      const ReserveWalletPercentage = await this.crowdsale.ReserveWalletPercentage();
+	      ReserveWalletPercentage.should.be.bignumber.eq(this.ReserveWalletPercentage, 'has correct ReserveWalletPercentage');
+	      const InterestPayoutWalletPercentage = await this.crowdsale.InterestPayoutWalletPercentage();
+	      InterestPayoutWalletPercentage.should.be.bignumber.eq(this.InterestPayoutWalletPercentage, 'has correct InterestPayoutWalletPercentage');
+	      const TeamsHRPercentage = await this.crowdsale.TeamsHRPercentage();
+	      TeamsHRPercentage.should.be.bignumber.eq(this.TeamsHRPercentage, 'has correct TeamsHRPercentage');
+	      const CompanyGeneralFundPercentage = await this.crowdsale.CompanyGeneralFundPercentage();
+	      CompanyGeneralFundPercentage.should.be.bignumber.eq(this.CompanyGeneralFundPercentage, 'has correct CompanyGeneralFundPercentage');
+	      const AirdropPercentage = await this.crowdsale.AirdropPercentage();
+	      AirdropPercentage.should.be.bignumber.eq(this.AirdropPercentage, 'has correct AirdropPercentage');	      
+	    });
 
-   //  	it('is a valid percentage breakdown', async () => {
-	  //     const tokenSalePercentage = await this.crowdsale.tokenSalePercentage();
-	  //     const foundersPercentage = await this.crowdsale.foundersPercentage();
-	  //     const foundationPercentage = await this.crowdsale.foundationPercentage();
-	  //     const partnersPercentage = await this.crowdsale.partnersPercentage();
+    	it('is a valid percentage breakdown', async () => {
+	      const TokenSalePercentage = await this.crowdsale.TokenSalePercentage();
+	      const ReserveWalletPercentage = await this.crowdsale.ReserveWalletPercentage();    		
+	      const InterestPayoutWalletPercentage = await this.crowdsale.InterestPayoutWalletPercentage();
+	      const TeamsHRPercentage = await this.crowdsale.TeamsHRPercentage();
+	      const CompanyGeneralFundPercentage = await this.crowdsale.CompanyGeneralFundPercentage();
+	      const AirdropPercentage = await this.crowdsale.AirdropPercentage();
 
-	  //     const total = tokenSalePercentage.toNumber() + foundersPercentage.toNumber() + foundationPercentage.toNumber() + partnersPercentage.toNumber()
-	  //     total.should.equal(100);
-   //  	});
-   //  });
+	      const total = TokenSalePercentage.toNumber() + ReserveWalletPercentage.toNumber() + InterestPayoutWalletPercentage.toNumber() + TeamsHRPercentage.toNumber() + CompanyGeneralFundPercentage.toNumber() + AirdropPercentage.toNumber();
+	      total.should.equal(100);
+    	});
+    });
 
-    describe('#getLatestPrice', () => {
+    describe('getLatestPrice mock test', () => {
         let price = "2000000000000000000";
         beforeEach(async () => {
             mockPriceFeed = await MockPriceFeed.new(8, price);
