@@ -15,7 +15,7 @@ truffle test ./test/DappTokenCrowdsaleTest.js
 ```
 - Alternatively, you can use `truffle test` command to run all the tests
 
-![](/images/photo3.png)
+![](/images/photofirst.PNG)
 
 
 ![](/images/photo2.PNG)
