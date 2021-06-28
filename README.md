@@ -22,7 +22,7 @@ truffle test ./test/DappTokenCrowdsaleTest.js
 
 
 # Notes and References
-- ERC20Standard file in previous Openzeppelin-contracts is now ERC20 in Openzeppelin Version 2.5
+
 - [Using Openzeppelin Version 2.5](https://github.com/OpenZeppelin/openzeppelin-contracts/tree/release-v2.5.0/contracts/token/ERC20 )
 - [Chainlink Smart Contract Kit](https://github.com/smartcontractkit/truffle-starter-kit)
 - [Chainlink Get Latest Price](https://docs.chain.link/docs/get-the-latest-price/)
