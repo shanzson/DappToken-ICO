@@ -63,14 +63,15 @@ const TokenTimelock = artifacts.require("TokenTimelock.sol");
 const MockPriceFeed = artifacts.require('MockV3Aggregator');
 const PriceConsumerV3 = artifacts.require('PriceConsumerV3');
 
+function days (val) { return val * 24 * 60 * 60; };
+function weeks (val) { return val * 7 * 24 * 60 * 60; };
+function years (val) { return val * 365 * 24 * 60 * 60; };
+
 contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWalletFund, InterestPayoutWalletFund, TeamsHRFund, CompanyGeneralFund, AirdropFund])=> {
 
 	beforeEach(async () => {
 		this.decimals = 18;
 		this.token = await DappToken.new('Dapp Token', 'DTC', this.decimals);
-
-		function weeks (val) { return val * 7 * 24 * 60 * 60; }
-		function years (val) { return val * 365 * 24 * 60 * 60; }
 
 		//Get Current Price
 		let web3 = new Web3(RPC_URL);
@@ -91,16 +92,19 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
 
 		// Crowdsale config
 
-		this.rate = toWei_BN(this.current_price/0.001); //rate is the conversion between wei and the smallest and indivisible token unit
+		this.rate = toWei_BN(this.current_price/0.001); //rate is the conversion between wei and 
+																										//the smallest and indivisible token unit
 		this.wallet = wallet;  // Address where funds are collected
 		this.cap = toWei_BN(100); //Total amount to be raised (100 Ether);
 		this.goal = toWei(50); //Goal below which Refunding to investors happens
 
-		// Goal can be changed to $12.5 Million but is set to 50 for testing all scenarios 
+		// Goal can be changed to $12.5 Million but is set to 50 ETH for testing all scenarios 
 
 		const latest_time = await latestTime('latest');
 		this.openingTime = weeks(1) + latest_time;
-		this.closingTime = this.openingTime + weeks(1);
+		this.closingTime = this.openingTime + days(60); 
+		// As Private sale is for 15 days, Presale is for 15 days 
+		// and Crowdsale is for 30 days. So 15 + 15 + 30 = 60 days
 
 		// this.investorMinCap = toWei_BN(500/this.current_price); // MinCap is $500
 		// this.investorHardCap = toWei_BN(5000000/this.current_price); //HardCap is $5 Million
@@ -118,8 +122,6 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
 	  this.TeamsHRFund = TeamsHRFund;
 	  this.CompanyGeneralFund = CompanyGeneralFund;
 	  this.AirdropFund = AirdropFund;
-
-    this.releaseTime  = this.closingTime + years(1);
 
 		// ICO Stages
 		this.privateIcoStage = '0';
@@ -233,16 +235,19 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
   		stage.should.be.bignumber.equal(this.privateIcoStage);
    	});
 
-   	it('Allows Admin to update ICO stage', async () => {
+   	it('Allows Admin to update stage to Presale after 15 days', async () => {
+   	  await increaseTimeTo(this.openingTime + days(15));
    		await this.crowdsale.setCrowdsaleStage(this.preIcoStage, {from: _});
   		let stage = await this.crowdsale.stage();
   		stage.should.be.bignumber.equal(this.preIcoStage);
+   	});
 
+   	it('Allows Admin to update stage to CrowdsaleICO after 15 days', async () => {
+   	  await increaseTimeTo(this.openingTime + days(15));
   		await this.crowdsale.setCrowdsaleStage(this.icoStage, {from: _});
   		stage = await this.crowdsale.stage();
   		stage.should.be.bignumber.equal(this.icoStage);
    	});
-
    	it('Does not allow non-admin to update ICO stage', async () => {
    		await this.crowdsale.setCrowdsaleStage(this.preIcoStage, {from: investor1}).should.be.rejectedWith('revert');
    	});
