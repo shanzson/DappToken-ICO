@@ -17,11 +17,11 @@ contract ERC20PausableExtended is ERC20Pausable, Ownable {
 
 }
 
-contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale, WhitelistCrowdsale, PostDeliveryCrowdsale{
+contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale, WhitelistCrowdsale, PostDeliveryCrowdsale, Ownable{
 	// Minimum investor contribution - 0.002 Ether
 	// Maximum investor contribution - 50 Ether
-	uint256 public investorMincap = 2000000000000000; //0.002 ether, here 2*10^15 wei
-	uint256 public investorHardcap = 50000000000000000000; //50 ether, here 50*10^18
+	uint256 public investorMincap = 247700000000000000; //0.2477 ether or $500
+	uint256 public investorHardcap = 2735000000000000000000; //2735 ether or $5 Million 
 	mapping(address => uint256) public contributions;
 	address private token_address;
 	address private fundswallet;
@@ -35,11 +35,11 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Fina
 	uint8 public CompanyGeneralFundPercentage = 13;
 	uint8 public AirdropPercentage = 2;
 
-	//Crowdsale stages
-	// enum CrowdsaleStage{ PreICO, ICO }
+	// Crowdsale stages
+	enum CrowdsaleStage{ PrivateICO, PreICO, ICO }
 
-	//Default to presale stage
-	// CrowdsaleStage public stage = CrowdsaleStage.PreICO;
+	// Default to presale stage
+	CrowdsaleStage public stage = CrowdsaleStage.PrivateICO;
 
 	// Token Distribution
 
@@ -86,15 +86,18 @@ contract DappTokenCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, Fina
     		return contributions[_beneficiary];
   	}
 
-  	//Allows admin to update Crowdsale stage
-  	// function setCrowdsaleStage(uint _stage) public onlyOwner{
-  	// 	if(uint(CrowdsaleStage.PreICO) == _stage){
-  	// 		stage = CrowdsaleStage.PreICO;
-  	// 	} 
-  	// 	else if(uint(CrowdsaleStage.ICO) == _stage) {
-  	// 		stage = CrowdsaleStage.ICO;
-  	// 	}
-  	// }
+  	// Allows admin to update Crowdsale stage
+  	function setCrowdsaleStage(uint _stage) public onlyOwner{
+  		if(uint(CrowdsaleStage.PrivateICO) == _stage){
+  			stage = CrowdsaleStage.PrivateICO;
+  		} 
+  		else if(uint(CrowdsaleStage.PreICO) == _stage){
+  			stage = CrowdsaleStage.PreICO;
+  		} 
+  		else if(uint(CrowdsaleStage.ICO) == _stage) {
+  			stage = CrowdsaleStage.ICO;
+  		}
+  	}
 
 	function _updatePurchasingState(
 		address beneficiary,
