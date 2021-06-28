@@ -333,8 +333,6 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
 	        await this.crowdsale.buyTokens(investor1, { value: toWei(26), from: investor1 });
 
     			let tokenSupply = await this.token.totalSupply();
-    			console.log('tokenSupply: ', tokenSupply.toString());
-
 	        await this.crowdsale.buyTokens(investor2, { value: toWei(26), from: investor2 });
 
 				  // Fastforward past end time
@@ -353,20 +351,16 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
    				await this.crowdsale.withdrawTokens(investor1, {from: investor1});
 					let balance1 = await this.token.balanceOf(investor1);
 					let balance2 = await this.token.balanceOf(investor2);
-					console.log("Balance1: ", balance1.toString());
-					console.log("Balance2: ", balance2.toString());
 
 					//Enables token transfers
           await this.token.transfer(investor1, 1, { from: investor1 }).should.be.fulfilled;
 
 					balance1 = await this.token.balanceOf(investor1);
 					balance2 = await this.token.balanceOf(investor2);
-					console.log("Balance1: ", balance1.toString());
-					console.log("Balance2: ", balance2.toString());
-	        
 	      });
+
       	it('handles the goal reached', async () => {
-        
+
         let totalSupply = await this.token.totalSupply();
         totalSupply = totalSupply.toString();
 
