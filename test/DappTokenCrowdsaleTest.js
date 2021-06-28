@@ -372,19 +372,19 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
    				const paused = await this.token.paused();
    				paused.should.be.false;
 
-   				// await this.crowdsale.withdrawTokens(investor1, {from: investor1});
-					// let balance1 = await this.token.balanceOf(investor1);
-					// let balance2 = await this.token.balanceOf(investor2);
-					// console.log("Balance1: ", balance1.toString());
-					// console.log("Balance2: ", balance2.toString());
+   				await this.crowdsale.withdrawTokens(investor1, {from: investor1});
+					let balance1 = await this.token.balanceOf(investor1);
+					let balance2 = await this.token.balanceOf(investor2);
+					console.log("Balance1: ", balance1.toString());
+					console.log("Balance2: ", balance2.toString());
 
-					// Enables token transfers
-          // await this.token.transfer(investor1, 1, { from: investor1 }).should.be.fulfilled;
+					//Enables token transfers
+          await this.token.transfer(investor1, 1, { from: investor1 }).should.be.fulfilled;
 
-					// balance1 = await this.token.balanceOf(investor1);
-					// balance2 = await this.token.balanceOf(investor2);
-					// console.log("Balance1: ", balance1.toString());
-					// console.log("Balance2: ", balance2.toString());
+					balance1 = await this.token.balanceOf(investor1);
+					balance2 = await this.token.balanceOf(investor2);
+					console.log("Balance1: ", balance1.toString());
+					console.log("Balance2: ", balance2.toString());
 	        
 	      });
       	it('handles the goal reached', async () => {
