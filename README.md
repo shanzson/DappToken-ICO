@@ -1,3 +1,21 @@
+# What is Dapp-Token ICO?
+  DappToken ICO is an ERC-20 token on Ethereum and aims to raise about 12.5 Million dollars in ETH. This happens via a minted, capped, finalizable, timed and whitlisted crowdsale. The conversion from ETH to USD is dynamic as it uses Chainlink price feeds to achieve this.
+
+# What is the total supply of Dapp-Tokens?
+  The total supply of Dapp-Tokens is capped at 50 Billion.
+
+# How is the token ditribution of Dapp-Tokens?
+  The token distribution of these tokens are as follows-
+  - 30% for Reserve wallet
+  - 25% for Token Sale
+  - 20% for Interest payout wallet
+  - 13% for Company general fund wallet
+  - 10% for Team's HR wallet
+  - 2% for Airdrop and Bounties
+
+# What are the stages in which the Crowdsale happens?
+  The crowdsale happens in 3 stages- Private ICO, Presale ICO and Crowdsale ICO. 
+
 # How to Run?
 - Run `npm install` or `yarn` to install the dependencies
 - Run `truffle compile`
@@ -19,7 +37,6 @@ truffle test ./test/DappTokenCrowdsaleTest.js
 
 
 ![](/images/photo2.PNG)
-
 
 # Notes and References
 
