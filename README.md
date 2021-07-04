@@ -1,5 +1,5 @@
-# What is Dapp-Token ICO?
-  DappToken ICO is an ERC-20 token on Ethereum and aims to raise about 12.5 Million dollars in ETH. This happens via a minted, capped, finalizable, timed and whitlisted crowdsale. The conversion from ETH to USD is dynamic as it uses Chainlink price feeds to achieve this.
+# What is Dapp-Token?
+  DappToken is an ERC-20 token on Ethereum and aims to raise about 12.5 Million dollars in ETH. This happens via a minted, capped, finalizable, timed and whitlisted crowdsale. The latest Openzeppelin version 2.5 for Crowdsale have been used for this purpose. The conversion from ETH to USD is dynamic as it uses Chainlink price feeds to achieve this.
 
 # What is the total supply of Dapp-Tokens?
   The total supply of Dapp-Tokens is capped at 50 Billion.
