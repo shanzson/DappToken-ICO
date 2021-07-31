@@ -318,14 +318,14 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
 		});
 
 		describe('token transfers', () => {
-	    it('does not allow investors to transfer tokens during crowdsale', async () => {
-	      // Buy some tokens first
-	      await this.crowdsale.buyTokens(investor1, { value: toWei(1), from: investor1 });
-	      const n = await this.token.totalSupply();
-	      // Attempt to transfer tokens during crowdsale
-	      await this.token.transfer(investor2, 1, { from: investor1 }).should.be.rejectedWith('revert');
-	    });
-  	});			
+		    it('does not allow investors to transfer tokens during crowdsale', async () => {
+		      // Buy some tokens first
+		      await this.crowdsale.buyTokens(investor1, { value: toWei(1), from: investor1 });
+		      const n = await this.token.totalSupply();
+		      // Attempt to transfer tokens during crowdsale
+		      await this.token.transfer(investor2, 1, { from: investor1 }).should.be.rejectedWith('revert');
+		    });
+  	        });			
 
 	  describe('finalizing the crowdsale', () => {
 	      describe('when the goal is reached', () => {
@@ -469,6 +469,7 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
             mockPriceFeed = await MockPriceFeed.new(8, price);
             priceConsumerV3 = await PriceConsumerV3.new(mockPriceFeed.address);
         })
+	    
         it('returns a price', async () => {
             assert.equal(await priceConsumerV3.getLatestPrice(), price);
         })
