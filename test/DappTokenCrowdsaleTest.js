@@ -75,20 +75,20 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
 
 		//Get Current Price
 		let web3 = new Web3(RPC_URL);
-	  const aggregatorV3InterfaceABI = [{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"description","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint80","name":"_roundId","type":"uint80"}],"name":"getRoundData","outputs":[{"internalType":"uint80","name":"roundId","type":"uint80"},{"internalType":"int256","name":"answer","type":"int256"},{"internalType":"uint256","name":"startedAt","type":"uint256"},{"internalType":"uint256","name":"updatedAt","type":"uint256"},{"internalType":"uint80","name":"answeredInRound","type":"uint80"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"latestRoundData","outputs":[{"internalType":"uint80","name":"roundId","type":"uint80"},{"internalType":"int256","name":"answer","type":"int256"},{"internalType":"uint256","name":"startedAt","type":"uint256"},{"internalType":"uint256","name":"updatedAt","type":"uint256"},{"internalType":"uint80","name":"answeredInRound","type":"uint80"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"version","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
+	  	const aggregatorV3InterfaceABI = [{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"description","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint80","name":"_roundId","type":"uint80"}],"name":"getRoundData","outputs":[{"internalType":"uint80","name":"roundId","type":"uint80"},{"internalType":"int256","name":"answer","type":"int256"},{"internalType":"uint256","name":"startedAt","type":"uint256"},{"internalType":"uint256","name":"updatedAt","type":"uint256"},{"internalType":"uint80","name":"answeredInRound","type":"uint80"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"latestRoundData","outputs":[{"internalType":"uint80","name":"roundId","type":"uint80"},{"internalType":"int256","name":"answer","type":"int256"},{"internalType":"uint256","name":"startedAt","type":"uint256"},{"internalType":"uint256","name":"updatedAt","type":"uint256"},{"internalType":"uint80","name":"answeredInRound","type":"uint80"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"version","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
 		const addr = "0x9326BFA02ADD2366b30bacB125260Af641031331";
-    const priceFeed = new web3.eth.Contract(aggregatorV3InterfaceABI, addr);
+		const priceFeed = new web3.eth.Contract(aggregatorV3InterfaceABI, addr);
 
 
 		const current_price = await priceFeed.methods.latestRoundData().call().then((roundData) => {
-    // Do something with roundData
-    return roundData.answer / 10**8
-  	});
+    			// Do something with roundData
+    			return roundData.answer / 10**8
+  		});
 
-  	this.current_price = current_price;
-    var cap = 50 * 1000000; //50 Million
-    cap = cap/current_price; //Total amount to be raised in ETH
-    this._cap = cap; //For pretty output and calculation
+  		this.current_price = current_price;
+    		var cap = 50 * 1000000; //50 Million
+    		cap = cap/current_price; //Total amount to be raised in ETH
+    		this._cap = cap; //For pretty output and calculation
 
 		// Crowdsale config
 
@@ -111,17 +111,17 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
 
 		// Token Distribution
 		this.TokenSalePercentage   = "25";
-	  this.ReserveWalletPercentage = "30";
-	  this.InterestPayoutWalletPercentage  = "20";
-	  this.TeamsHRPercentage    = "10";
-	  this.CompanyGeneralFundPercentage = "13";
-	  this.AirdropPercentage = "2";
+		this.ReserveWalletPercentage = "30";
+	  	this.InterestPayoutWalletPercentage  = "20";
+	  	this.TeamsHRPercentage    = "10";
+	  	this.CompanyGeneralFundPercentage = "13";
+	  	this.AirdropPercentage = "2";
 
 		this.ReserveWalletFund = ReserveWalletFund;
-	  this.InterestPayoutWalletFund = InterestPayoutWalletFund;
-	  this.TeamsHRFund = TeamsHRFund;
-	  this.CompanyGeneralFund = CompanyGeneralFund;
-	  this.AirdropFund = AirdropFund;
+	  	this.InterestPayoutWalletFund = InterestPayoutWalletFund;
+	  	this.TeamsHRFund = TeamsHRFund;
+	  	this.CompanyGeneralFund = CompanyGeneralFund;
+	  	this.AirdropFund = AirdropFund;
 
 		// ICO Stages
 		this.privateIcoStage = '0';
@@ -137,22 +137,22 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
 			this.closingTime,		
 			this.goal,
 			this.ReserveWalletFund,
-      this.InterestPayoutWalletFund,
-      this.TeamsHRFund ,
-      this.CompanyGeneralFund,
-      this.AirdropFund,
+      			this.InterestPayoutWalletFund,
+      			this.TeamsHRFund ,
+      			this.CompanyGeneralFund,
+      			this.AirdropFund,
 		);
 
 
 		// Transfer token ownership to crowdsale
 		await this.token.addMinter(this.crowdsale.address);
-    await this.token.transferOwnership(this.crowdsale.address);
+    		await this.token.transferOwnership(this.crowdsale.address);
 
-    // Transfer tokens to the crowdsale contract so that it has the token supply
-    // await this.token.transfer(this.crowdsale.address, tokenSupply);
+    		// Transfer tokens to the crowdsale contract so that it has the token supply
+    		// await this.token.transfer(this.crowdsale.address, tokenSupply);
 		await this.token.renounceMinter();
 
-    // Pause the token so that investors can't transfer tokens during crowdsale
+    		// Pause the token so that investors can't transfer tokens during crowdsale
 		await this.token.pause();
 
 		// Transfer Pauser role to crowdsale contract
@@ -160,8 +160,8 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
 		await this.token.renouncePauser(); //from _
 
 		// Add investors to whitelist
-    await this.crowdsale.addWhitelisted(investor1);
-    await this.crowdsale.addWhitelisted(investor2);
+    		await this.crowdsale.addWhitelisted(investor1);
+    		await this.crowdsale.addWhitelisted(investor2);
 
 		// Advance time to crowdsale start
 		const increasedTime = await increaseTimeTo(this.openingTime + 1);
@@ -202,18 +202,18 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
 	});
 
 	describe('Timed crowdsale', () => {
-    it('is open', async () => {
-   		const isClosed = await this.crowdsale.hasClosed();
-    	isClosed.should.be.false;
-    });
-  });
+    		it('is open', async () => {
+   			const isClosed = await this.crowdsale.hasClosed();
+    			isClosed.should.be.false;
+    		});
+  	});
 
 	describe('Whitelisted crowdsale', () => {
-   it('rejects contributions from non-whitelisted investors', async () => {
-     const notWhitelisted = _;
-     await this.crowdsale.buyTokens(notWhitelisted,{ value: toWei(1), from: notWhitelisted}).should.be.rejectedWith('revert');
-   });
-  });
+   		it('rejects contributions from non-whitelisted investors', async () => {
+     			const notWhitelisted = _;
+     			await this.crowdsale.buyTokens(notWhitelisted,{ value: toWei(1), from: notWhitelisted}).should.be.rejectedWith('revert');
+   		});
+	});
 
 	describe('Minted Crowdsale', () => {
 		it('Mints tokens after purchase', async () => {
@@ -230,27 +230,28 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
 	});
 
 	describe('Crowdsale stages', () => {
-  	it('It starts in PrivateICO', async () => {
-  		const stage = await this.crowdsale.stage();
-  		stage.should.be.bignumber.equal(this.privateIcoStage);
-   	});
+  		it('It starts in PrivateICO', async () => {
+  			const stage = await this.crowdsale.stage();
+  			stage.should.be.bignumber.equal(this.privateIcoStage);
+   		});
 
-   	it('Allows Admin to update stage to Presale after 15 days', async () => {
-   	  await increaseTimeTo(this.openingTime + days(15));
-   		await this.crowdsale.setCrowdsaleStage(this.preIcoStage, {from: _});
-  		let stage = await this.crowdsale.stage();
-  		stage.should.be.bignumber.equal(this.preIcoStage);
-   	});
+   		it('Allows Admin to update stage to Presale after 15 days', async () => {
+   	 		await increaseTimeTo(this.openingTime + days(15));
+   			await this.crowdsale.setCrowdsaleStage(this.preIcoStage, {from: _});
+  			let stage = await this.crowdsale.stage();
+  			stage.should.be.bignumber.equal(this.preIcoStage);
+   		});
 
-   	it('Allows Admin to update stage to CrowdsaleICO after 15 days', async () => {
-   	  await increaseTimeTo(this.openingTime + days(15));
-  		await this.crowdsale.setCrowdsaleStage(this.icoStage, {from: _});
-  		stage = await this.crowdsale.stage();
-  		stage.should.be.bignumber.equal(this.icoStage);
-   	});
-   	it('Does not allow non-admin to update ICO stage', async () => {
-   		await this.crowdsale.setCrowdsaleStage(this.preIcoStage, {from: investor1}).should.be.rejectedWith('revert');
-   	});
+   		it('Allows Admin to update stage to CrowdsaleICO after 15 days', async () => {
+   	 		await increaseTimeTo(this.openingTime + days(15));
+  			await this.crowdsale.setCrowdsaleStage(this.icoStage, {from: _});
+  			stage = await this.crowdsale.stage();
+  			stage.should.be.bignumber.equal(this.icoStage);
+   		});
+		
+   		it('Does not allow non-admin to update ICO stage', async () => {
+   			await this.crowdsale.setCrowdsaleStage(this.preIcoStage, {from: investor1}).should.be.rejectedWith('revert');
+   		});
   });
 
 
@@ -327,139 +328,139 @@ contract('Dapptoken Crowdsale', ([_, wallet, investor1, investor2, ReserveWallet
   	});			
 
 	  describe('finalizing the crowdsale', () => {
-      describe('when the goal is reached', () => {
-	      beforeEach(async () => {
-	        // Meets the goal
-	        await this.crowdsale.buyTokens(investor1, { value: toWei(26), from: investor1 });
+	      describe('when the goal is reached', () => {
+		      beforeEach(async () => {
+			// Meets the goal
+			await this.crowdsale.buyTokens(investor1, { value: toWei(26), from: investor1 });
 
-    			let tokenSupply = await this.token.totalSupply();
-	        await this.crowdsale.buyTokens(investor2, { value: toWei(26), from: investor2 });
+			let tokenSupply = await this.token.totalSupply();
+			await this.crowdsale.buyTokens(investor2, { value: toWei(26), from: investor2 });
 
-				  // Fastforward past end time
-	        await increaseTimeTo(this.closingTime + 1);
-	        
-	        // Finalize the crowdsale
-	        await this.crowdsale.finalize({ from: _ });
+			// Fastforward past end time
+			await increaseTimeTo(this.closingTime + 1);
 
-					tokenSupply = await this.token.totalSupply();
-    			console.log('tokenSupply: ', tokenSupply.toString());
+			// Finalize the crowdsale
+			await this.crowdsale.finalize({ from: _ });
 
-   				//Check the token is Unpaused 
-   				const paused = await this.token.paused();
-   				paused.should.be.false;
+			tokenSupply = await this.token.totalSupply();
+			console.log('tokenSupply: ', tokenSupply.toString());
 
-   				await this.crowdsale.withdrawTokens(investor1, {from: investor1});
-					let balance1 = await this.token.balanceOf(investor1);
-					let balance2 = await this.token.balanceOf(investor2);
+			//Check the token is Unpaused 
+			const paused = await this.token.paused();
+			paused.should.be.false;
 
-					//Enables token transfers
-          await this.token.transfer(investor1, 1, { from: investor1 }).should.be.fulfilled;
+			await this.crowdsale.withdrawTokens(investor1, {from: investor1});
+			let balance1 = await this.token.balanceOf(investor1);
+			let balance2 = await this.token.balanceOf(investor2);
 
-					balance1 = await this.token.balanceOf(investor1);
-					balance2 = await this.token.balanceOf(investor2);
-	      });
+			//Enables token transfers
+			await this.token.transfer(investor1, 1, { from: investor1 }).should.be.fulfilled;
 
-      	it('handles the goal reached', async () => {
+			balance1 = await this.token.balanceOf(investor1);
+			balance2 = await this.token.balanceOf(investor2);
+		      });
 
-        let totalSupply = await this.token.totalSupply();
-        totalSupply = totalSupply.toString();
+			it('handles the goal reached', async () => {
 
-        //Reserve Wallet
-        let ReserveWalletFundBalance = await this.token.balanceOf(this.ReserveWalletFund);
-        ReserveWalletFundBalance = ReserveWalletFundBalance / (10 ** this.decimals);
-        console.log("ReserveWalletFundBalance: ", ReserveWalletFundBalance);
-        ReserveWalletFundBalance = ReserveWalletFundBalance.toString();
+			let totalSupply = await this.token.totalSupply();
+			totalSupply = totalSupply.toString();
 
-        let ReserveWalletFundAmount = (totalSupply * this.ReserveWalletPercentage)/100;
-        ReserveWalletFundAmount = ReserveWalletFundAmount / (10 ** this.decimals);
-        ReserveWalletFundAmount = ReserveWalletFundAmount.toString();
-        console.log("ReserveWalletFundAmount: ", ReserveWalletFundAmount);
+			//Reserve Wallet
+			let ReserveWalletFundBalance = await this.token.balanceOf(this.ReserveWalletFund);
+			ReserveWalletFundBalance = ReserveWalletFundBalance / (10 ** this.decimals);
+			console.log("ReserveWalletFundBalance: ", ReserveWalletFundBalance);
+			ReserveWalletFundBalance = ReserveWalletFundBalance.toString();
 
-        assert.equal(ReserveWalletFundBalance.slice(0,10), ReserveWalletFundAmount.slice(0,10));
+			let ReserveWalletFundAmount = (totalSupply * this.ReserveWalletPercentage)/100;
+			ReserveWalletFundAmount = ReserveWalletFundAmount / (10 ** this.decimals);
+			ReserveWalletFundAmount = ReserveWalletFundAmount.toString();
+			console.log("ReserveWalletFundAmount: ", ReserveWalletFundAmount);
 
-        //InterestPayout Wallet
-        let InterestPayoutWalletFundBalance = await this.token.balanceOf(this.InterestPayoutWalletFund);
-        InterestPayoutWalletFundBalance = InterestPayoutWalletFundBalance / (10 ** this.decimals);
-        InterestPayoutWalletFundBalance = InterestPayoutWalletFundBalance.toString();
-        console.log("InterestPayoutWalletFundBalance: ", InterestPayoutWalletFundBalance);
+			assert.equal(ReserveWalletFundBalance.slice(0,10), ReserveWalletFundAmount.slice(0,10));
 
-        let InterestPayoutWalletFundAmount = (totalSupply * this.InterestPayoutWalletPercentage)/100;
-        InterestPayoutWalletFundAmount = InterestPayoutWalletFundAmount / (10 ** this.decimals);
-        InterestPayoutWalletFundAmount = InterestPayoutWalletFundAmount.toString();
-        console.log("InterestPayoutWalletFundAmount: ", InterestPayoutWalletFundAmount);
+			//InterestPayout Wallet
+			let InterestPayoutWalletFundBalance = await this.token.balanceOf(this.InterestPayoutWalletFund);
+			InterestPayoutWalletFundBalance = InterestPayoutWalletFundBalance / (10 ** this.decimals);
+			InterestPayoutWalletFundBalance = InterestPayoutWalletFundBalance.toString();
+			console.log("InterestPayoutWalletFundBalance: ", InterestPayoutWalletFundBalance);
 
-        assert.equal(InterestPayoutWalletFundBalance.slice(0,10), InterestPayoutWalletFundAmount.slice(0,10));
+			let InterestPayoutWalletFundAmount = (totalSupply * this.InterestPayoutWalletPercentage)/100;
+			InterestPayoutWalletFundAmount = InterestPayoutWalletFundAmount / (10 ** this.decimals);
+			InterestPayoutWalletFundAmount = InterestPayoutWalletFundAmount.toString();
+			console.log("InterestPayoutWalletFundAmount: ", InterestPayoutWalletFundAmount);
 
-        //TeamsHRFund Wallet
-        let TeamsHRFundBalance = await this.token.balanceOf(this.TeamsHRFund);
-        TeamsHRFundBalance = TeamsHRFundBalance / (10 ** this.decimals);
-        console.log("TeamsHRFundBalance: ", TeamsHRFundBalance);
-        TeamsHRFundBalance = TeamsHRFundBalance.toString();
+			assert.equal(InterestPayoutWalletFundBalance.slice(0,10), InterestPayoutWalletFundAmount.slice(0,10));
 
-        let TeamsHRFundAmount = (totalSupply * this.TeamsHRPercentage)/100;
-        TeamsHRFundAmount = TeamsHRFundAmount / (10 ** this.decimals);
-        TeamsHRFundAmount = TeamsHRFundAmount.toString();
-        console.log("TeamsHRFundAmount: ", TeamsHRFundAmount);
+			//TeamsHRFund Wallet
+			let TeamsHRFundBalance = await this.token.balanceOf(this.TeamsHRFund);
+			TeamsHRFundBalance = TeamsHRFundBalance / (10 ** this.decimals);
+			console.log("TeamsHRFundBalance: ", TeamsHRFundBalance);
+			TeamsHRFundBalance = TeamsHRFundBalance.toString();
 
-        assert.equal(TeamsHRFundBalance.slice(0,10), TeamsHRFundAmount.slice(0,10));
+			let TeamsHRFundAmount = (totalSupply * this.TeamsHRPercentage)/100;
+			TeamsHRFundAmount = TeamsHRFundAmount / (10 ** this.decimals);
+			TeamsHRFundAmount = TeamsHRFundAmount.toString();
+			console.log("TeamsHRFundAmount: ", TeamsHRFundAmount);
 
-        //CompanyGeneralFund Wallet
-        let CompanyGeneralFundBalance = await this.token.balanceOf(this.CompanyGeneralFund);
-        CompanyGeneralFundBalance = CompanyGeneralFundBalance / (10 ** this.decimals);
-        console.log("CompanyGeneralFundBalance: ", CompanyGeneralFundBalance);
-        CompanyGeneralFundBalance = CompanyGeneralFundBalance.toString();
+			assert.equal(TeamsHRFundBalance.slice(0,10), TeamsHRFundAmount.slice(0,10));
 
-        let CompanyGeneralFundAmount = (totalSupply * this.CompanyGeneralFundPercentage)/100;
-        CompanyGeneralFundAmount = CompanyGeneralFundAmount / (10 ** this.decimals);
-        CompanyGeneralFundAmount = CompanyGeneralFundAmount.toString();
-        console.log("CompanyGeneralFundAmount: ", CompanyGeneralFundAmount);
+			//CompanyGeneralFund Wallet
+			let CompanyGeneralFundBalance = await this.token.balanceOf(this.CompanyGeneralFund);
+			CompanyGeneralFundBalance = CompanyGeneralFundBalance / (10 ** this.decimals);
+			console.log("CompanyGeneralFundBalance: ", CompanyGeneralFundBalance);
+			CompanyGeneralFundBalance = CompanyGeneralFundBalance.toString();
 
-        assert.equal(CompanyGeneralFundBalance.slice(0,10), CompanyGeneralFundAmount.slice(0,10));
+			let CompanyGeneralFundAmount = (totalSupply * this.CompanyGeneralFundPercentage)/100;
+			CompanyGeneralFundAmount = CompanyGeneralFundAmount / (10 ** this.decimals);
+			CompanyGeneralFundAmount = CompanyGeneralFundAmount.toString();
+			console.log("CompanyGeneralFundAmount: ", CompanyGeneralFundAmount);
 
-        //AirdropFund Wallet
-        let AirdropFundBalance = await this.token.balanceOf(this.AirdropFund);
-        AirdropFundBalance = AirdropFundBalance / (10 ** this.decimals);
-        console.log("AirdropFundBalance: ", AirdropFundBalance);
-        AirdropFundBalance = AirdropFundBalance.toString();
+			assert.equal(CompanyGeneralFundBalance.slice(0,10), CompanyGeneralFundAmount.slice(0,10));
 
-        let AirdropFundAmount = (totalSupply * this.AirdropPercentage)/100;
-        AirdropFundAmount = AirdropFundAmount / (10 ** this.decimals);
-        AirdropFundAmount = AirdropFundAmount.toString();
-        console.log("AirdropFundAmount: ", AirdropFundAmount);
+			//AirdropFund Wallet
+			let AirdropFundBalance = await this.token.balanceOf(this.AirdropFund);
+			AirdropFundBalance = AirdropFundBalance / (10 ** this.decimals);
+			console.log("AirdropFundBalance: ", AirdropFundBalance);
+			AirdropFundBalance = AirdropFundBalance.toString();
 
-        assert.equal(AirdropFundBalance.slice(0,10), AirdropFundAmount.slice(0,10));
-      	});
+			let AirdropFundAmount = (totalSupply * this.AirdropPercentage)/100;
+			AirdropFundAmount = AirdropFundAmount / (10 ** this.decimals);
+			AirdropFundAmount = AirdropFundAmount.toString();
+			console.log("AirdropFundAmount: ", AirdropFundAmount);
 
-      });
-	  });
+			assert.equal(AirdropFundBalance.slice(0,10), AirdropFundAmount.slice(0,10));
+			});
+
+	        });
+	});
 
 	  describe('token distribution', () => {
-    	it('tracks token distribution correctly', async () => {
-	      const TokenSalePercentage = await this.crowdsale.TokenSalePercentage();
-	      TokenSalePercentage.should.be.bignumber.eq(this.TokenSalePercentage, 'has correct TokenSalePercentage');
-	      const ReserveWalletPercentage = await this.crowdsale.ReserveWalletPercentage();
-	      ReserveWalletPercentage.should.be.bignumber.eq(this.ReserveWalletPercentage, 'has correct ReserveWalletPercentage');
-	      const InterestPayoutWalletPercentage = await this.crowdsale.InterestPayoutWalletPercentage();
-	      InterestPayoutWalletPercentage.should.be.bignumber.eq(this.InterestPayoutWalletPercentage, 'has correct InterestPayoutWalletPercentage');
-	      const TeamsHRPercentage = await this.crowdsale.TeamsHRPercentage();
-	      TeamsHRPercentage.should.be.bignumber.eq(this.TeamsHRPercentage, 'has correct TeamsHRPercentage');
-	      const CompanyGeneralFundPercentage = await this.crowdsale.CompanyGeneralFundPercentage();
-	      CompanyGeneralFundPercentage.should.be.bignumber.eq(this.CompanyGeneralFundPercentage, 'has correct CompanyGeneralFundPercentage');
-	      const AirdropPercentage = await this.crowdsale.AirdropPercentage();
-	      AirdropPercentage.should.be.bignumber.eq(this.AirdropPercentage, 'has correct AirdropPercentage');	      
-	    });
+		it('tracks token distribution correctly', async () => {
+		      const TokenSalePercentage = await this.crowdsale.TokenSalePercentage();
+		      TokenSalePercentage.should.be.bignumber.eq(this.TokenSalePercentage, 'has correct TokenSalePercentage');
+		      const ReserveWalletPercentage = await this.crowdsale.ReserveWalletPercentage();
+		      ReserveWalletPercentage.should.be.bignumber.eq(this.ReserveWalletPercentage, 'has correct ReserveWalletPercentage');
+		      const InterestPayoutWalletPercentage = await this.crowdsale.InterestPayoutWalletPercentage();
+		      InterestPayoutWalletPercentage.should.be.bignumber.eq(this.InterestPayoutWalletPercentage, 'has correct InterestPayoutWalletPercentage');
+		      const TeamsHRPercentage = await this.crowdsale.TeamsHRPercentage();
+		      TeamsHRPercentage.should.be.bignumber.eq(this.TeamsHRPercentage, 'has correct TeamsHRPercentage');
+		      const CompanyGeneralFundPercentage = await this.crowdsale.CompanyGeneralFundPercentage();
+		      CompanyGeneralFundPercentage.should.be.bignumber.eq(this.CompanyGeneralFundPercentage, 'has correct CompanyGeneralFundPercentage');
+		      const AirdropPercentage = await this.crowdsale.AirdropPercentage();
+		      AirdropPercentage.should.be.bignumber.eq(this.AirdropPercentage, 'has correct AirdropPercentage');	      
+		    });
 
-    	it('is a valid percentage breakdown', async () => {
-	      const TokenSalePercentage = await this.crowdsale.TokenSalePercentage();
-	      const ReserveWalletPercentage = await this.crowdsale.ReserveWalletPercentage();    		
-	      const InterestPayoutWalletPercentage = await this.crowdsale.InterestPayoutWalletPercentage();
-	      const TeamsHRPercentage = await this.crowdsale.TeamsHRPercentage();
-	      const CompanyGeneralFundPercentage = await this.crowdsale.CompanyGeneralFundPercentage();
-	      const AirdropPercentage = await this.crowdsale.AirdropPercentage();
+		it('is a valid percentage breakdown', async () => {
+		      const TokenSalePercentage = await this.crowdsale.TokenSalePercentage();
+		      const ReserveWalletPercentage = await this.crowdsale.ReserveWalletPercentage();    		
+		      const InterestPayoutWalletPercentage = await this.crowdsale.InterestPayoutWalletPercentage();
+		      const TeamsHRPercentage = await this.crowdsale.TeamsHRPercentage();
+		      const CompanyGeneralFundPercentage = await this.crowdsale.CompanyGeneralFundPercentage();
+		      const AirdropPercentage = await this.crowdsale.AirdropPercentage();
 
-	      const total = TokenSalePercentage.toNumber() + ReserveWalletPercentage.toNumber() + InterestPayoutWalletPercentage.toNumber() + TeamsHRPercentage.toNumber() + CompanyGeneralFundPercentage.toNumber() + AirdropPercentage.toNumber();
-	      total.should.equal(100);
-    	});
+		      const total = TokenSalePercentage.toNumber() + ReserveWalletPercentage.toNumber() + InterestPayoutWalletPercentage.toNumber() + TeamsHRPercentage.toNumber() + CompanyGeneralFundPercentage.toNumber() + AirdropPercentage.toNumber();
+		      total.should.equal(100);
+		});
     });
 
     describe('getLatestPrice mock test', () => {
